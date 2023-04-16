@@ -1,0 +1,317 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+~
+~ Redistribution and use in source and binary forms, with or without
+~ modification, are permitted (subject to the limitations in the
+~ disclaimer below) provided that the following conditions are met:
+~
+~    * Redistributions of source code must retain the above copyright
+~      notice, this list of conditions and the following disclaimer.
+~
+~    * Redistributions in binary form must reproduce the above
+~      copyright notice, this list of conditions and the following
+~      disclaimer in the documentation and/or other materials provided
+~      with the distribution.
+~
+~    * Neither the name Qualcomm Innovation Center nor the names of its
+~      contributors may be used to endorse or promote products derived
+~      from this software without specific prior written permission.
+~
+~ NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+~ GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+~ HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+~ WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+~ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+~ IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+~ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+~ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+~ GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+~ INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+~ IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+~ OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+~ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/ae_lock"
+        android:checkable="true"
+        android:title="@string/ae_lock" />
+
+    <item
+        android:id="@+id/awb_lock"
+        android:checkable="true"
+        android:title="@string/awb_lock" />
+
+    <item
+        android:id="@+id/adrc_mode"
+        android:checkable="true"
+        android:title="@string/adrc_mode" />
+
+    <item
+        android:id="@+id/defog"
+        android:checkable="true"
+        android:title="@string/defog" />
+
+    <item
+        android:id="@+id/exp_table"
+        android:checkable="true"
+        android:title="@string/exposure_table" />
+
+    <item
+        android:id="@+id/ANR_table"
+        android:checkable="true"
+        android:title="@string/ANR_table" />
+
+    <item
+        android:id="@+id/LTM_table"
+        android:checkable="true"
+        android:title="@string/LTM" />
+
+    <item
+        android:id="@+id/ae_mode"
+        android:title="@string/ae_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/AE_ON"
+                    android:checked="true"
+                    android:title="On" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/awb_mode"
+        android:title="@string/awb_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AWB_MODE_AUTO"
+                    android:checked="true"
+                    android:title="Auto" />
+                <item android:id="@+id/AWB_MODE_INCANDESCENT"
+                    android:title="Incandescent" />
+                <item android:id="@+id/AWB_MODE_FLUORESCENT"
+                    android:title="Fluorescent" />
+                <item android:id="@+id/AWB_MODE_WARM_FLUORESCENT"
+                    android:title="Warm Fluorescent" />
+                <item android:id="@+id/AWB_MODE_DAYLIGHT"
+                    android:title="DayLight" />
+                <item android:id="@+id/AWB_MODE_CLOUDY_DAYLIGHT"
+                    android:title="Cloudy DayLight" />
+                <item android:id="@+id/AWB_MODE_TWILIGHT"
+                    android:title="Twilight" />
+                <item android:id="@+id/AWB_MODE_SHADE"
+                    android:title="Shade" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/saturation_level"
+        android:title="@string/saturation" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/Sat_Level_0"
+                    android:title="Level 0" />
+                <item android:id="@+id/Sat_Level_1"
+                    android:title="Level 1" />
+                <item android:id="@+id/Sat_Level_2"
+                    android:title="Level 2" />
+                <item android:id="@+id/Sat_Level_3"
+                    android:title="Level 3" />
+                <item android:id="@+id/Sat_Level_4"
+                    android:title="Level 4" />
+                <item android:id="@+id/Sat_Level_5"
+                    android:checked="true"
+                    android:title="Level 5" />
+                <item android:id="@+id/Sat_Level_6"
+                    android:title="Level 6" />
+                <item android:id="@+id/Sat_Level_7"
+                    android:title="Level 7" />
+                <item android:id="@+id/Sat_Level_8"
+                    android:title="Level 8" />
+                <item android:id="@+id/Sat_Level_9"
+                    android:title="Level 9" />
+                <item android:id="@+id/Sat_Level_10"
+                    android:title="Level 10" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/sharpness_level"
+        android:title="@string/sharpness" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/Sharpness_Level_0"
+                    android:title="Level 0" />
+                <item android:id="@+id/Sharpness_Level_1"
+                    android:title="Level 1" />
+                <item android:id="@+id/Sharpness_Level_2"
+                    android:checked="true"
+                    android:title="Level 2" />
+                <item android:id="@+id/Sharpness_Level_3"
+                    android:title="Level 3" />
+                <item android:id="@+id/Sharpness_Level_4"
+                    android:title="Level 4" />
+                <item android:id="@+id/Sharpness_Level_5"
+                    android:title="Level 5" />
+                <item android:id="@+id/Sharpness_Level_6"
+                    android:title="Level 6" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/nr_mode"
+        android:title="@string/nr_mode" >
+    <menu>
+        <group android:checkableBehavior="single">
+        <item android:id="@+id/nr_mode_off"
+            android:title="Off" />
+        <item android:id="@+id/nr_mode_fast"
+            android:checked="true"
+            android:title="Fast" />
+        <item android:id="@+id/nr_mode_hq"
+            android:title="High quality" />
+        <item android:id="@+id/nr_mode_minimal"
+            android:title="Minimal" />
+        <item android:id="@+id/nr_mode_zsl"
+            android:title="ZSL" />
+        </group>
+    </menu>
+    </item>
+
+    <item
+        android:id="@+id/antibanding"
+        android:title="@string/antibanding" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ANTIBANDING_MODE_OFF"
+                    android:title="Off" />
+                <item android:id="@+id/ANTIBANDING_MODE_50HZ"
+                    android:title="50 HZ" />
+                <item android:id="@+id/ANTIBANDING_MODE_60HZ"
+                    android:title="60 Hz" />
+                <item android:id="@+id/ANTIBANDING_MODE_AUTO"
+                    android:title="Auto"
+                    android:checked="true" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/af_mode"
+        android:title="@string/af_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/AF_MODE_OFF"
+                    android:checked="true"
+                    android:title="Off" />
+                <item android:id="@+id/AF_MODE_MACRO"
+                    android:title="Macro" />
+                <item android:id="@+id/AF_MODE_CONTINUOUS_VIDEO"
+                    android:title="Continuous Video" />
+                <item android:id="@+id/AF_MODE_CONTINUOUS_PICTURE"
+                    android:title="Continuous Picture" />
+                <item android:id="@+id/AF_MODE_EDOF"
+                    android:title="EDOF" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/ir_mode"
+        android:title="@string/ir_led_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ir_mode_off"
+                    android:checked="true"
+                    android:title="Off" />
+                <item android:id="@+id/ir_mode_on"
+                    android:title="On" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/exp_metering_mode"
+        android:title="@string/exposure_metering_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/ae_exp_mode_avg"
+                    android:checked="true"
+                    android:title="Average" />
+                <item android:id="@+id/ae_exp_mode_center_weight"
+                    android:title="Center Weight" />
+                <item android:id="@+id/ae_exp_mode_spot"
+                    android:title="Spot" />
+                <item android:id="@+id/ae_exp_mode_custom"
+                    android:title="Custom" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/iso_mode"
+        android:title="@string/iso_mode" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/iso_mode_auto"
+                    android:checked="true"
+                    android:title="Auto" />
+                <item android:id="@+id/iso_mode_deblur"
+                    android:title="Deblur" />
+                <item android:id="@+id/iso_mode_100"
+                    android:title="100" />
+                <item android:id="@+id/iso_mode_200"
+                    android:title="200" />
+                <item android:id="@+id/iso_mode_400"
+                    android:title="400" />
+                <item android:id="@+id/iso_mode_800"
+                    android:title="800" />
+                <item android:id="@+id/iso_mode_1600"
+                    android:title="1600" />
+                <item android:id="@+id/iso_mode_3200"
+                    android:title="3200" />
+            </group>
+        </menu>
+    </item>
+
+    <item
+        android:id="@+id/zoom"
+        android:title="@string/ZOOM" >
+        <menu>
+            <group android:checkableBehavior="single">
+                <item android:id="@+id/zoom_off"
+                    android:checked="true"
+                    android:title="Off" />
+                <item android:id="@+id/zoom_1x"
+                    android:title="1x" />
+                <item android:id="@+id/zoom_2x"
+                    android:title="2x" />
+                <item android:id="@+id/zoom_3x"
+                    android:title="3x" />
+                <item android:id="@+id/zoom_4x"
+                    android:title="4x" />
+                <item android:id="@+id/zoom_5x"
+                    android:title="5x" />
+                <item android:id="@+id/zoom_6x"
+                    android:title="6x" />
+                <item android:id="@+id/zoom_7x"
+                    android:title="7x" />
+                <item android:id="@+id/zoom_8x"
+                    android:title="8x" />
+
+            </group>
+        </menu>
+    </item>
+</menu>
+
+
+
