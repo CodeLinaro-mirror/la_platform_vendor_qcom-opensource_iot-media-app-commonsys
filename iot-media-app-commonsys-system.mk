@@ -6,3 +6,6 @@ PRODUCT_PACKAGES += configurationappforaidirector
 
 # Camera2Video Android Application Package
 PRODUCT_PACKAGES += Camera2Video
+
+# UMDAdaptor app
+PRODUCT_PACKAGES += UMDAdaptor
