@@ -1,0 +1,109 @@
+<!--
+~ Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+~ SPDX-License-Identifier: BSD-3-Clause-Clear
+-->
+<resources>
+    <!-- App Title -->
+    <string name="app_name"> AI Director Configuration App</string>
+    <!-- Settings Activity Title -->
+    <string name="title_activity_settings">SettingsActivity</string>
+
+    <!-- Preference Titles -->
+    <string name="framing_header">Select the Framing Mode</string>
+    <string name="tuning_parameters_header">Select the Tuning Parameters</string>
+    <string name="debug_parameters_header">Select the Debug Parameters</string>
+    <string name="reset_app_preference_header">Reset App Preference</string>
+    <string name="framing_mode_title">Framing Mode</string>
+    <string name="framing_mode_description">group - show all person in front of camera; speaker - show all person who are involved in the conversation; people - tiled view mode with each person in a separate window</string>
+    <string name="reset_app_preference_title">Reset App</string>
+    <string name="tuning_parameters">Tuning Parameters</string>
+    <string name="gpu_transform_draw_debug">Draw AI bounding boxes</string>
+    <string name="gpu_transform_draw_debug_description">Enable and disable drawing on debug data on screen.</string>
+    <string name="gpu_transform_enable_crop">Enable auto-framing crop</string>
+    <string name="gpu_transform_enable_crop_description">Enable and disable GPU crop.</string>
+    <string name="doa_dump_csv">DoA dump logging (to csv)</string>
+    <string name="doa_dump_csv_description">Enable and disable ADOA filter logs. Logs locations: /vendor/etc/camera/doa_filer_pa.csv /vendor/etc/camera/doa_filer_peaks.csv</string>
+    <string name="beamforming_adoa_logging">DoA logging</string>
+    <string name="beamforming_adoa_logging_description">Enable and disable ADOA logs. Logs location: /vendor/etc/camera/adoa_device.csv</string>
+    <string name="autoframing_filter_size">Time to react</string>
+    <string name="autoframing_filter_size_hint">Type: Int, Range: 10–60</string>
+    <string name="autoframing_filter_size_description">AFR filter debt in frames. Bigger size improve stabilization but it increase response time.</string>
+    <string name="autoframing_pos_threshold">Pos Threshold</string>
+    <string name="autoframing_pos_threshold_hint">Type: Int, Range: 1–30</string>
+    <string name="autoframing_pos_threshold_description">Minimal movement in percent before AFR update.</string>
+    <string name="autoframing_size_threshold">Size Threshold</string>
+    <string name="autoframing_size_threshold_hint">Type: Int, Range: 1–30</string>
+    <string name="autoframing_size_threshold_description">Minimal FOV change in percent before AFR update. </string>
+    <string name="autoframing_speed_movement">Speed</string>
+    <string name="autoframing_speed_movement_hint">"Type: Int, Range: 1–100</string>
+    <string name="autoframing_speed_movement_description">Tracking speed. This is just a coefficient. Bigger value means faster tracking. Actual speed is variable and depends on distance to target position.</string>
+    <string name="autoframing_max_move_step">Max Move Step</string>
+    <string name="autoframing_max_move_step_hint">Type: Int, Range: 1–100</string>
+    <string name="autoframing_max_move_step_description">Maximum tracking speed per frame for movement. This is just a coefficient. Bigger value means faster tracking. Actual value in pixels depends on resolution.</string>
+    <string name="autoframing_max_crop_ratio">Max Zoom factor</string>
+    <string name="autoframing_max_crop_ratio_hint">Type: Int, Range: 1–100</string>
+    <string name="autoframing_max_crop_ratio_description">Maximum crop/zoom-in ratio.</string>
+    <string name="postprocess_yolov5_conf_threshold">Confidence</string>
+    <string name="postprocess_yolov5_conf_threshold_hint">Type: Float, Range: 0.0–1.0</string>
+    <string name="postprocess_yolov5_conf_threshold_description">YoloV5: Confidence threshold</string>
+    <string name="postprocess_yolov5_conf_threshold_person">Person confidence</string>
+    <string name="postprocess_yolov5_conf_threshold_person_hint">Type: Float, Range: 0.0–1.0</string>
+    <string name="postprocess_yolov5_conf_threshold_person_description">YoloV5: NMS min overlap threshold</string>
+    <string name="postprocess_yolov5_max_num_objects">Maximum detected objects</string>
+    <string name="postprocess_yolov5_max_num_objects_hint">Type: Int, Range: 1–20</string>
+    <string name="postprocess_yolov5_max_num_objects_description">YoloV5: Maximum count of detected objects</string>
+    <string name="postprocess_yolov5_margins">Object margins</string>
+    <string name="postprocess_yolov5_margins_hint">Type: Int, Range: 0–100</string>
+    <string name="postprocess_yolov5_margins_description">YoloV5: Body margin in percent</string>
+    <string name="dsp_aip_mode">AI Runtime</string>
+    <string name="dsp_aip_mode_description">SNPE runtime</string>
+    <string name="filter_box_tracking_outside_percent">Filter Box Tracking Outside Percent</string>
+    <string name="filter_box_tracking_outside_percent_hint">Type: Int, Range: 0–100</string>
+    <string name="filter_box_tracking_outside_percent_description">Audio detection margin outside of the detected bounding box.</string>
+    <string name="filter_default_detection_audio_doa_list_size">Filter default detection audio DOA list size</string>
+    <string name="filter_default_detection_audio_doa_list_size_hint">Type: Int, Range: 2–100</string>
+    <string name="filter_default_detection_audio_doa_list_size_description">The size of the speech detection list. It contains a speech detection flag for the number of frames. It is related to detection_audio_doa_threshold.</string>
+    <string name="filter_default_history_filter_depth">Filter default history filter depth</string>
+    <string name="filter_default_history_filter_depth_hint">Type: Int, Range: 2–1000</string>
+    <string name="filter_default_history_filter_depth_description">The depth of the list which contains sound values for each degree from the microphone array. (apply only for PA filter_type)</string>
+    <string name="filter_default_signal_pos_list_size">Filter default signal pos list size</string>
+    <string name="filter_default_signal_pos_list_size_hint">Type: Int, Range: 2–1000</string>
+    <string name="filter_default_signal_pos_list_size_description">The depth of the list which contains the center coordinates and signal of the each detected speaker direction, it used for additional stabilization of the output. (apply only for PA filter_type)</string>
+    <string name="filter_detection_audio_doa_threshold_high">Filter detection audio DOA threshold high</string>
+    <string name="filter_detection_audio_doa_threshold_high_hint">Type: Float, Range: 0.0–100.0</string>
+    <string name="filter_detection_audio_doa_threshold_high_description">The detection threshold which is used to detect when the speaker start speaking. It is related to detection_audio_doa_list_size.</string>
+    <string name="filter_detection_audio_doa_threshold_low">Filter detection audio DOA threshold low</string>
+    <string name="filter_detection_audio_doa_threshold_low_hint">Type: Float, Range: 0.0–100.0</string>
+    <string name="filter_detection_audio_doa_threshold_low_description">The detection threshold which is used to detect when the speaker stop speaking. It is related to detection_audio_doa_list_size.</string>
+    <string name="filter_doa_detected_delay">Filter DOA detected delay</string>
+    <string name="filter_doa_detected_delay_hint">Type: Int, Range: 0–1000</string>
+    <string name="filter_doa_detected_delay_description">The speed in frames how fast can change from detected to not detected speech and vice versa.</string>
+    <string name="filter_doa_change_delay">Filter DOA Change delay</string>
+    <string name="filter_doa_change_delay_hint">Type: Int, Range: 0–1000</string>
+    <string name="filter_doa_change_delay_description">The speed in frames how fast can jump from one speaker to another.</string>
+    <string name="doa_histogram_res">DOA Histogram Res</string>
+    <string name="doa_histogram_res_hint">Type: Int, Range: 0–1000</string>
+    <string name="doa_histogram_res_description">DOA peaks library resolution of histogram bins. (apply only for Peaks_DOA/Peaks_Polar filter_type)</string>
+    <string name="doa_histogram_thres">DOA Histogram Threshold</string>
+    <string name="doa_histogram_thres_hint">Type: Int, Range: 0–1000</string>
+    <string name="doa_histogram_thres_description">DOA peaks library threshold to filter bins that have noise data. (apply only for Peaks_DOA/Peaks_Polar filter_type)</string>
+    <string name="sample_interval">Sample Interval</string>
+    <string name="sample_interval_hint">Type: Int, Range: 1–60</string>
+    <string name="sample_interval_description">Time between two sequential reads from ADOA</string>
+    <string name="filter_type">Filter Type</string>
+    <string name="filter_type_description">The audio filter type: 0 - Polar Activity (PA), 1 - Peaks_DOA, 2 - Peaks_Polar</string>
+    <string name="average_fov_filter_en">Average FOV Filter En</string>
+    <string name="average_fov_filter_en_description">Enable/disable comparing the average sound coming from inside the FOV and outside the FOV</string>
+    <string name="speech_probability_threshold">Speech Probability Threshold</string>
+    <string name="speech_probability_threshold_hint">Type: Float, Range: 0.0–1.0</string>
+    <string name="speech_probability_threshold_description">The speech probability threshold use to detect the speech</string>
+    <string name="tracking_roi_release_cnt">Max ROIs</string>
+    <string name="tracking_roi_release_cnt_hint">Type: Int, Range: 1–200</string>
+    <string name="tracking_roi_release_cnt_description">Maximum possible instance count of AFR. It is used for people framing mode only.</string>
+    <string name="autoframing_roi_release_cnt">Auto Framing ROI release cnt</string>
+    <string name="autoframing_roi_release_cnt_hint">Type: Int, Range: 1–200</string>
+    <string name="autoframing_roi_release_cnt_description">Maximum count of tracking objects.</string>
+    <string name="tracking_intersect_coef">Tracking Intersect Coefficient</string>
+    <string name="tracking_intersect_coef_hint">Type: Float, Range: 0.0–1.0</string>
+    <string name="tracking_intersect_coef_description">Minimum intersection between old and new location of tracking objects.</string>
+</resources>
