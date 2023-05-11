@@ -12,6 +12,7 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.RemoteException;
+import android.os.SystemProperties;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,8 +27,11 @@ import vendor.qti.hardware.umd.V1_0.IUMDAdaptor;
 public class AudioPlayback {
 
     private static final String TAG = "AudioPlayBack";
-    private static final int DEFAULT_SAMPLE_RATE = 48000;
+    private static final String DEFAULT_SAMPLE_RATE = "48000";
+    private static final String DEFAULT_CH_MASK = "2";
     private static final int AUDIO_QUEUE_SIZE = 8;
+    private static final String PLAYBACK_SAMPLE_RATE_PROP = "persist.vendor.umd.pb.srate";
+    private static final String PLAYBACK_CHANNEL_MASK_PROP = "persist.vendor.umd.pb.chmask";
     private int mAudioBufferBytes;
     private int mAudioSampleRate;
     private int mRecorderChannels;
@@ -47,6 +51,26 @@ public class AudioPlayback {
     public AudioPlayback(Context context, IUMDAdaptor umdadaptor) {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
         mUMDAdaptor = umdadaptor;
+        mAudioSampleRate = Integer.parseInt(
+                SystemProperties.get(PLAYBACK_SAMPLE_RATE_PROP, DEFAULT_SAMPLE_RATE));
+
+        int chmask = Integer.parseInt(
+                SystemProperties.get(PLAYBACK_CHANNEL_MASK_PROP, DEFAULT_CH_MASK));
+        if (chmask == 2) {
+            mRecorderChannels = AudioFormat.CHANNEL_IN_STEREO;
+        } else if (chmask == 1)
+            mRecorderChannels = AudioFormat.CHANNEL_IN_MONO;
+
+        mRecorderAudioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+        mAudioBufferBytes = AudioRecord.getMinBufferSize(mAudioSampleRate,
+                mRecorderChannels,
+                mRecorderAudioEncoding);
+
+        try {
+            mUMDAdaptor.setAudioBufferSize(mAudioBufferBytes);
+        } catch (RemoteException e) {
+            Log.i(TAG, "Remote Exception");
+        }
     }
 
     private ArrayList<Byte> toByteArray(@NonNull byte[] data, int offset, int length) {
@@ -66,18 +90,6 @@ public class AudioPlayback {
                     mAudioDevice = d;
             }
             if (mAudioDevice != null) {
-                mAudioSampleRate = DEFAULT_SAMPLE_RATE;
-                mRecorderChannels = AudioFormat.CHANNEL_IN_STEREO;
-                mRecorderAudioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-                mAudioBufferBytes = AudioRecord.getMinBufferSize(mAudioSampleRate,
-                        mRecorderChannels,
-                        mRecorderAudioEncoding);
-
-                try {
-                    mUMDAdaptor.setAudioBufferSize(mAudioBufferBytes);
-                } catch (RemoteException e) {
-                    Log.i(TAG, "Remote Exception");
-                }
                 mAudioRecorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
                         mAudioSampleRate, mRecorderChannels,
                         mRecorderAudioEncoding, mAudioBufferBytes);

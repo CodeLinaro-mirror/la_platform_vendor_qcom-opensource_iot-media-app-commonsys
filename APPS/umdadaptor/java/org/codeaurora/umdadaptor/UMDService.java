@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import static android.content.pm.ServiceInfo.*;
 import vendor.qti.hardware.umd.V1_0.*;
 
 public class UMDService extends Service {
@@ -85,22 +85,21 @@ public class UMDService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         try {
             mServer = IUMDAdaptor.getService(true /* retry */);
         } catch (RemoteException e) {
             Log.i(TAG, "Remote Exception");
         }
-        mMode = SystemProperties.get(UMDADAPTOR_PROP);
+        mMode = SystemProperties.get(UMDADAPTOR_PROP, UVC);
 
         if(mMode.equals(UAC) || mMode.equals(UVC_UAC)) {
-            mAudioCapture = new AudioCapture(getApplicationContext(), mServer);
-            mAudioPlayback = new AudioPlayback(getApplicationContext(), mServer);
             try {
                 mServer.initUAC(mHalCallback);
             } catch (RemoteException e) {
                 Log.i(TAG, "Remote Exception");
             }
+            mAudioCapture = new AudioCapture(getApplicationContext(), mServer);
+            mAudioPlayback = new AudioPlayback(getApplicationContext(), mServer);
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -131,7 +130,7 @@ public class UMDService extends Service {
         getSystemService(NotificationManager.class).createNotificationChannel(channel);
         Notification.Builder notification = new Notification.Builder(this, NOTIFICATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_background);
-        startForeground(NOTIFICATION_ID, notification.build());
+        startForeground(NOTIFICATION_ID, notification.build(), FOREGROUND_SERVICE_TYPE_MICROPHONE);
         return super.onStartCommand(intent, flags, startId);
     }
 

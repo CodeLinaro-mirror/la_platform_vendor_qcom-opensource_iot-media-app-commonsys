@@ -11,11 +11,13 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.util.Log;
+import android.os.SystemProperties;
 
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
+import android.os.Process;
 
 import vendor.qti.hardware.umd.V1_0.IUMDAdaptor;
 import vendor.qti.hardware.umd.V1_0.IUMDAdaptorCallback;
@@ -23,8 +25,12 @@ import vendor.qti.hardware.umd.V1_0.IUMDAdaptorCallback;
 public class AudioCapture {
 
     private static final String TAG = "AudioCapture";
-    private static final int DEFAULT_SAMPLE_RATE = 48000;
+    private static final String DEFAULT_SAMPLE_RATE = "44100";
+    private static final String DEFAULT_CH_MASK = "2";
     private static final int AUDIO_QUEUE_SIZE = 8;
+    private static final int UNDER_RUN_THRESHHOLD = 5;
+    private static final String CAPTURE_SAMPLE_RATE_PROP = "persist.vendor.umd.cp.srate";
+    private static final String CAPTURE_CHANNEL_MASK_PROP = "persist.vendor.umd.cp.chmask";
     private int mAudioBufferBytes;
     private int mAudioSampleRate;
     private int mAudioChannels;
@@ -63,10 +69,14 @@ public class AudioCapture {
     public void start() {
         if (mAudioTrack == null) {
             Log.v(TAG, "start enter");
-            mAudioSampleRate = DEFAULT_SAMPLE_RATE;
-            mAudioChannels = AudioFormat.CHANNEL_IN_STEREO;
+            mAudioSampleRate = Integer.parseInt(SystemProperties.get(CAPTURE_SAMPLE_RATE_PROP, DEFAULT_SAMPLE_RATE));
+            int chmask = Integer.parseInt(SystemProperties.get(CAPTURE_CHANNEL_MASK_PROP, DEFAULT_CH_MASK));
+            if (chmask == 2) {
+                mAudioChannels = AudioFormat.CHANNEL_IN_STEREO;
+            } else if (chmask == 1)
+                mAudioChannels = AudioFormat.CHANNEL_IN_MONO;
             mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT;
-            mAudioBufferBytes = android.media.AudioRecord.getMinBufferSize(mAudioSampleRate,
+            mAudioBufferBytes = AudioTrack.getMinBufferSize(mAudioSampleRate,
                     mAudioChannels,
                     mAudioEncoding);
 
@@ -93,10 +103,18 @@ public class AudioCapture {
             mAudioTrackThread = new Thread(new Runnable() {
                 public void run() {
                     Log.v(TAG, "mAudioTrackThread enter");
+                    Process.setThreadPriority(Process.THREAD_PRIORITY_AUDIO);
+                    Boolean firstTime = true;
                     mIsAudioTrackThreadRunning.set(true);
                     mAudioSemaphore.release();
                     while (mIsAudioTrackThreadRunning.get()) {
                         if (!mAudioQueue.isEmpty()) {
+                            if (firstTime) {
+                                if (mAudioQueue.remainingCapacity() > UNDER_RUN_THRESHHOLD)
+                                    continue;
+                                else
+                                    firstTime = false;
+                            }
                             ArrayList<Byte> bData = new ArrayList<>();
                             try {
                                 bData = mAudioQueue.take();

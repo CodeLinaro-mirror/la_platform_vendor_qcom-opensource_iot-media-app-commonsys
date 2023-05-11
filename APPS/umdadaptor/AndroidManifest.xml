@@ -16,6 +16,7 @@
         <service
             android:name=".UMDService"
             android:enabled="true"
+            android:foregroundServiceType="microphone"
             android:exported="false">
         </service>
 
