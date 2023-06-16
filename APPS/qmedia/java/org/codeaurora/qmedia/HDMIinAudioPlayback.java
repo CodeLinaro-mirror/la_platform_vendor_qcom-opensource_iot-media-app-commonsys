@@ -46,7 +46,6 @@ import android.util.Log;
 
 import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -66,7 +65,7 @@ public class HDMIinAudioPlayback {
     AudioDeviceInfo mHDMIDevice = null;
     private Thread mRecordThread = null;
     private Thread mPlaybackThread = null;
-    ArrayBlockingQueue<byte[]> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE);
+    ArrayBlockingQueue<byte[]> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE, true);
     AtomicBoolean isAudioRecordThreadRunning = new AtomicBoolean(false);
     AtomicBoolean isAudioPlaybackThreadRunning = new AtomicBoolean(false);
     Semaphore mRecordPlaybackSemaphore = new Semaphore(2);
@@ -110,8 +109,8 @@ public class HDMIinAudioPlayback {
 
             mAudioTrack = new AudioTrack.Builder()
                     .setAudioAttributes(new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
                             .build())
                     .setAudioFormat(new AudioFormat.Builder()
                             .setEncoding(mRecorderAudioEncoding)
@@ -152,7 +151,7 @@ public class HDMIinAudioPlayback {
                     while (isAudioPlaybackThreadRunning.get()) {
                         if (!mAudioQueue.isEmpty()) {
                             byte[] bData = mAudioQueue.remove();
-                            mAudioTrack.write(bData, 0, mAudioBufferBytes);
+                            mAudioTrack.write(bData, 0, mAudioBufferBytes, AudioTrack.WRITE_NON_BLOCKING);
                         }
                     }
                     mRecordPlaybackSemaphore.release();
