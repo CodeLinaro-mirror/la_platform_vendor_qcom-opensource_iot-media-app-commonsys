@@ -63,7 +63,6 @@
 package org.codeaurora.qmedia;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Presentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -355,11 +354,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
                 if (!mCameraRunning.get()) {
                     mHDMIinAvailable = false;
                     mActivity.runOnUiThread(() -> {
-                        AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                        alert.setTitle("No device is connected");
-                        alert.setMessage("To project content connect a device via HDMI.");
-                        alert.setPositiveButton("OK", null);
-                        alert.show();
+                        Toast.makeText(getContext(), "No device is connected, To project content connect a device via HDMI.",
+                                Toast.LENGTH_LONG).show();
                     });
                 }
             }
@@ -390,11 +386,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
                 mHDMIinAudioPlayback = null;
                 mCameraBase.stopCamera();
                 mActivity.runOnUiThread(() -> {
-                    AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-                    alert.setTitle("No device is connected");
-                    alert.setMessage("To project content connect a device via HDMI.");
-                    alert.setPositiveButton("OK", null);
-                    alert.show();
+                    Toast.makeText(getContext(), "No device is connected, To project content connect a device via HDMI.",
+                            Toast.LENGTH_LONG).show();
                 });
             }
             Log.v(TAG, "CameraDisconnectedThread exit");
@@ -415,11 +408,10 @@ public class PresentationBase extends Presentation implements CameraDisconnected
             for (MediaCodecDecoder it : mMediaCodecDecoderList) {
                 it.start();
             }
-            AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
-            alert.setTitle("No device is connected");
-            alert.setMessage("To project content connect a device via HDMI.");
-            alert.setPositiveButton("OK", null);
-            alert.show();
+            mActivity.runOnUiThread(() -> {
+                Toast.makeText(getContext(), "No device is connected, To project content connect a device via HDMI.",
+                        Toast.LENGTH_LONG).show();
+            });
         } else {
             if (mData.getHDMISource(mPresentationIndex).equals("MP4") &&
                     mData.getComposeType(mPresentationIndex).equals("OpenGLESWithEncode") &&
