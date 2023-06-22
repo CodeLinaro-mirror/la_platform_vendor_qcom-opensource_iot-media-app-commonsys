@@ -470,8 +470,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
             }
             if (mCameraRunning.getAndSet(false)) {
                 if (mData.getHDMISource(mPresentationIndex).equals("Camera") &&
-                        mData.getIsHDMIinCameraEnabled(mPresentationIndex) && mRecorderStarted) {
-                    if (mMediaCodecRecorder != null) {
+                        mData.getIsHDMIinCameraEnabled(mPresentationIndex)) {
+                    if (mMediaCodecRecorder != null && mRecorderStarted) {
                         mMediaCodecRecorder.stop();
                         mRecorderStarted = false;
                     }
