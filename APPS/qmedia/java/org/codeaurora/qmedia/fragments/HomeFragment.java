@@ -76,6 +76,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Build;
+import android.os.SystemProperties;
 import android.util.Log;
 import android.util.Size;
 import android.view.Display;
@@ -281,10 +282,20 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
         AudioManager am = (AudioManager) getContext().getSystemService(Context.AUDIO_SERVICE);
         if (mSettingData.getIsCalibrationEnabled()) {
             am.setParameters("msteams_cert_calibration=on");
-            Log.d(TAG, "MS Teams Audio Calibration is ON");
+            try {
+                SystemProperties.set("persist.vendor.camera.enableCertTuning", "1");
+            } catch (Exception e) {
+                Log.e("TAG", "Failed to set the property for camera");
+            }
+            Log.d(TAG, "MS Teams Calibration is ON");
         } else {
             am.setParameters("msteams_cert_calibration=off");
-            Log.d(TAG, "MS Teams Audio Calibration is OFF");
+            try {
+                SystemProperties.set("persist.vendor.camera.enableCertTuning", "0");
+            } catch (Exception e) {
+                Log.e("TAG", "Failed to set the property for camera");
+            }
+            Log.d(TAG, "MS Teams Calibration is OFF");
         }
         Log.v(TAG, "Exit onResume");
     }

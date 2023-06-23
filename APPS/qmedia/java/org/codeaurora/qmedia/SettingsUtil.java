@@ -91,14 +91,14 @@ class SettingsData {
 
 }
 
-class AudioCalibrationData {
+class CalibrationData {
     protected Boolean isCalibrationEnabled;
 }
 
 public class SettingsUtil {
 
     private static final String TAG = "SettingsUtil";
-    public AudioCalibrationData mAudioCalibrationData;
+    public CalibrationData mCalibrationData;
     public ArrayList<SettingsData> data;
     private static final CameraCharacteristics.Key<String> CAMERA_TYPE_CHARACTERISTIC_KEY =
             new CameraCharacteristics.Key<>("camera.type", String.class);
@@ -106,7 +106,7 @@ public class SettingsUtil {
     public SettingsUtil(Context context) {
         Log.v(TAG, "SettingsUtil enter");
         data = new ArrayList<>();
-        mAudioCalibrationData = new AudioCalibrationData();
+        mCalibrationData = new CalibrationData();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
@@ -233,7 +233,7 @@ public class SettingsUtil {
 
         data.add(hdmi_3_setting);
 
-        mAudioCalibrationData.isCalibrationEnabled = pref.getBoolean("msteams_cert_calibration", false);
+        mCalibrationData.isCalibrationEnabled = pref.getBoolean("msteams_cert_calibration", false);
 
         Log.v(TAG, "SettingsUtil exit");
     }
@@ -255,7 +255,7 @@ public class SettingsUtil {
             Log.d(TAG, "Is Tunneling Enabled : " + data.get(it).isTunnelingEnabled);
             Log.d(TAG, "#####################################");
         }
-        Log.d(TAG, "Is Audio Calibration Enabled : " + mAudioCalibrationData.isCalibrationEnabled);
+        Log.d(TAG, "Is Calibration Enabled : " + mCalibrationData.isCalibrationEnabled);
     }
 
     public String getHDMISource(int index) {
@@ -311,6 +311,6 @@ public class SettingsUtil {
     }
 
     public Boolean getIsCalibrationEnabled() {
-        return mAudioCalibrationData.isCalibrationEnabled;
+        return mCalibrationData.isCalibrationEnabled;
     }
 }
