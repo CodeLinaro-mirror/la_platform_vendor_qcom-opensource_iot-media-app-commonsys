@@ -8,12 +8,14 @@
         <item>Group Framing</item>
         <item>Speaker Framing</item>
         <item>People Framing</item>
+        <item>Presenter Framing</item>
     </string-array>
 
     <string-array name="framing_modes_values">
         <item>GroupFraming</item>
         <item>SpeakerFraming</item>
         <item>PeopleFraming</item>
+        <item>PresenterFraming</item>
     </string-array>
 
     <string-array name="gpu_transform_draw_debug">
@@ -26,12 +28,12 @@
         <item>Disable</item>
     </string-array>
 
-    <string-array name="doa_dump_csv">
+    <string-array name="csv_logging_enable">
         <item>Enable</item>
         <item>Disable</item>
     </string-array>
 
-    <string-array name="beamforming_adoa_logging">
+    <string-array name="audio_plot">
         <item>Enable</item>
         <item>Disable</item>
     </string-array>
@@ -41,13 +43,29 @@
         <item>dsp</item>
     </string-array>
 
-    <string-array name="filter_type">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
+    <string-array name="device_mic_flip">
+        <item>Enable</item>
+        <item>Disable</item>
     </string-array>
 
-    <string-array name="average_fov_filter_en">
+    <string-array name="filter_multi_enable">
+        <item>Enable</item>
+        <item>Disable</item>
+    </string-array>
+
+    <string-array name="filter_average_fov_filter_enabled">
+        <item>Enable</item>
+        <item>Disable</item>
+    </string-array>
+
+    <string-array name="muxer_priority">
+        <item>face</item>
+        <item>person</item>
+        <item>face,person</item>
+        <item>person,face</item>
+    </string-array>
+
+    <string-array name="filter_select">
         <item>0</item>
         <item>1</item>
     </string-array>
