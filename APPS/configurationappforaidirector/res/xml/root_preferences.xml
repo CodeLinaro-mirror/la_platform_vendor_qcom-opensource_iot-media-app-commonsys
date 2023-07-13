@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
 ~ Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
 ~ SPDX-License-Identifier: BSD-3-Clause-Clear
 -->
@@ -9,7 +8,7 @@
     <PreferenceCategory android:title="@string/framing_header">
 
         <ListPreference
-            android:defaultValue="SpeakerFraming"
+            android:defaultValue="GroupFraming"
             android:dialogTitle="@string/framing_mode_description"
             android:entries="@array/framing_modes"
             android:entryValues="@array/framing_modes_values"
@@ -22,25 +21,35 @@
     <PreferenceCategory android:title="@string/tuning_parameters_header">
 
         <EditTextPreference
-            android:defaultValue="25"
             android:dialogTitle="@string/autoframing_filter_size_description"
             android:key="autoframing_filter_size"
-            android:title="@string/autoframing_filter_size"
+            android:title="@string/autoframing_filter_size" />
+        <EditTextPreference
+            android:dialogTitle="@string/autoframing_filter_average_size_description"
+            android:key="autoframing_filter_average_size"
+            android:title="@string/autoframing_filter_average_size" />
+        <EditTextPreference
+            android:dialogTitle="@string/autoframing_pos_static_threshold_description"
+            android:key="autoframing_pos_static_threshold"
+            android:title="@string/autoframing_pos_static_threshold" />
+        <EditTextPreference
+            android:dialogTitle="@string/autoframing_size_static_threshold_description"
+            android:key="autoframing_size_static_threshold"
+            android:title="@string/autoframing_size_static_threshold" />
+        <EditTextPreference
+            android:defaultValue="5"
+            android:dialogTitle="@string/autoframing_pos_moving_threshold_description"
+            android:key="autoframing_pos_moving_threshold"
+            android:title="@string/autoframing_pos_moving_threshold"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="6"
-            android:dialogTitle="@string/autoframing_pos_threshold_description"
-            android:key="autoframing_pos_threshold"
-            android:title="@string/autoframing_pos_threshold"
+            android:defaultValue="5"
+            android:dialogTitle="@string/autoframing_size_moving_threshold_description"
+            android:key="autoframing_size_moving_threshold"
+            android:title="@string/autoframing_size_moving_threshold"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="6"
-            android:dialogTitle="@string/autoframing_size_threshold_description"
-            android:key="autoframing_size_threshold"
-            android:title="@string/autoframing_size_threshold"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="40"
+            android:defaultValue="30"
             android:dialogTitle="@string/autoframing_speed_movement_description"
             android:key="autoframing_speed_movement"
             android:title="@string/autoframing_speed_movement"
@@ -52,19 +61,245 @@
             android:title="@string/autoframing_max_move_step"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="20"
+            android:defaultValue="10"
             android:dialogTitle="@string/autoframing_max_crop_ratio_description"
             android:key="autoframing_max_crop_ratio"
             android:title="@string/autoframing_max_crop_ratio"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="0.7"
+            android:defaultValue="120"
+            android:dialogTitle="@string/autoframing_roi_release_cnt_description"
+            android:key="autoframing_roi_release_cnt"
+            android:title="@string/autoframing_roi_release_cnt"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/adoa_sound_card_description"
+            android:key="adoa_sound_card"
+            android:title="@string/adoa_sound_card"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="TX_CDC_DMA_TX_3"
+            android:dialogTitle="@string/adoa_backend_interface_description"
+            android:key="adoa_backend_interface"
+            android:title="@string/adoa_backend_interface"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="Source Tracking Audio Tx"
+            android:dialogTitle="@string/adoa_mixer_control_stt_description"
+            android:key="adoa_mixer_control_stt"
+            android:title="@string/adoa_mixer_control_stt"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="Fnn Audio Tx"
+            android:dialogTitle="@string/adoa_mixer_control_fnn_description"
+            android:key="adoa_mixer_control_fnn"
+            android:title="@string/adoa_mixer_control_fnn"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:dialogTitle="@string/adoa_mixer_open_retry_delay_description"
+            android:key="adoa_mixer_open_retry_delay"
+            android:title="@string/adoa_mixer_open_retry_delay"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="10"
+            android:dialogTitle="@string/adoa_mixer_open_max_retries_description"
+            android:key="adoa_mixer_open_max_retries"
+            android:title="@string/adoa_mixer_open_max_retries"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="0"
+            android:dialogTitle="@string/filter_select_description"
+            android:entries="@array/filter_select"
+            android:entryValues="@array/filter_select"
+            android:key="filter_select"
+            android:summary="%s"
+            android:title="@string/filter_select" />
+        <EditTextPreference
+            android:defaultValue="30.0"
+            android:dialogTitle="@string/frame_rate_description"
+            android:key="frame_rate"
+            android:title="@string/frame_rate"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="110"
+            android:dialogTitle="@string/camera_fov_description"
+            android:key="camera_fov"
+            android:title="@string/camera_fov"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="40"
+            android:dialogTitle="@string/device_sampling_period_description"
+            android:key="device_sampling_period"
+            android:title="@string/device_sampling_period"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="10"
+            android:dialogTitle="@string/device_sample_size_description"
+            android:key="device_sample_size"
+            android:title="@string/device_sample_size"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="35"
+            android:dialogTitle="@string/device_sample_threshold_description"
+            android:key="device_sample_threshold"
+            android:title="@string/device_sample_threshold"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="500"
+            android:dialogTitle="@string/device_thread_timeout_description"
+            android:key="device_thread_timeout"
+            android:title="@string/device_thread_timeout"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="180"
+            android:dialogTitle="@string/device_mic_orientation_description"
+            android:key="device_mic_orientation"
+            android:title="@string/device_mic_orientation"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="Disable"
+            android:dialogTitle="@string/device_mic_flip_description"
+            android:entries="@array/device_mic_flip"
+            android:entryValues="@array/device_mic_flip"
+            android:key="device_mic_flip"
+            android:summary="%s"
+            android:title="@string/device_mic_flip" />
+        <EditTextPreference
+            android:defaultValue="8"
+            android:dialogTitle="@string/device_mic_resolution_description"
+            android:key="device_mic_resolution"
+            android:title="@string/device_mic_resolution"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="95.0"
+            android:dialogTitle="@string/filter_speech_probability_threshold_description"
+            android:key="filter_speech_probability_threshold"
+            android:title="@string/filter_speech_probability_threshold"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="100"
+            android:dialogTitle="@string/filter_single_activation_threshold_description"
+            android:key="filter_single_activation_threshold"
+            android:title="@string/filter_single_activation_threshold"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="1000"
+            android:dialogTitle="@string/filter_single_activation_deadline_description"
+            android:key="filter_single_activation_deadline"
+            android:title="@string/filter_single_activation_deadline"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="3000"
+            android:dialogTitle="@string/filter_single_deactivation_delay_description"
+            android:key="filter_single_deactivation_delay"
+            android:title="@string/filter_single_deactivation_delay"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="5000"
+            android:dialogTitle="@string/filter_multi_activation_threshold_description"
+            android:key="filter_multi_activation_threshold"
+            android:title="@string/filter_multi_activation_threshold"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="8000"
+            android:dialogTitle="@string/filter_multi_activation_deadline_description"
+            android:key="filter_multi_activation_deadline"
+            android:title="@string/filter_multi_activation_deadline"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="5000"
+            android:dialogTitle="@string/filter_multi_deactivation_delay_description"
+            android:key="filter_multi_deactivation_delay"
+            android:title="@string/filter_multi_deactivation_delay"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="5"
+            android:dialogTitle="@string/filter_multi_max_speakers_description"
+            android:key="filter_multi_max_speakers"
+            android:title="@string/filter_multi_max_speakers"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="Enable"
+            android:dialogTitle="@string/filter_multi_enable_description"
+            android:entries="@array/filter_multi_enable"
+            android:entryValues="@array/filter_multi_enable"
+            android:key="filter_multi_enable"
+            android:summary="%s"
+            android:title="@string/filter_multi_enable" />
+        <EditTextPreference
+            android:defaultValue="30"
+            android:dialogTitle="@string/box_tracking_outside_description"
+            android:key="box_tracking_outside"
+            android:title="@string/box_tracking_outside"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="250"
+            android:dialogTitle="@string/detection_audio_doa_list_size_description"
+            android:key="detection_audio_doa_list_size"
+            android:title="@string/detection_audio_doa_list_size"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="60"
+            android:dialogTitle="@string/history_filter_depth_description"
+            android:key="history_filter_depth"
+            android:title="@string/history_filter_depth"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="60"
+            android:dialogTitle="@string/signal_pos_list_size_description"
+            android:key="signal_pos_list_size"
+            android:title="@string/signal_pos_list_size"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="28.0"
+            android:dialogTitle="@string/detection_audio_doa_threshold_high_description"
+            android:key="detection_audio_doa_threshold_high"
+            android:title="@string/detection_audio_doa_threshold_high"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="15.0"
+            android:dialogTitle="@string/detection_audio_doa_threshold_low_description"
+            android:key="detection_audio_doa_threshold_low"
+            android:title="@string/detection_audio_doa_threshold_low"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="100"
+            android:dialogTitle="@string/doa_detected_delay_description"
+            android:key="doa_detected_delay"
+            android:title="@string/doa_detected_delay"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="50"
+            android:dialogTitle="@string/doa_change_delay_description"
+            android:key="doa_change_delay"
+            android:title="@string/doa_change_delay"
+            app:useSimpleSummaryProvider="true" />
+        <ListPreference
+            android:defaultValue="Enable"
+            android:dialogTitle="@string/filter_average_fov_filter_enabled_description"
+            android:entries="@array/filter_average_fov_filter_enabled"
+            android:entryValues="@array/filter_average_fov_filter_enabled"
+            android:key="filter_average_fov_filter_enabled"
+            android:summary="%s"
+            android:title="@string/filter_average_fov_filter_enabled" />
+        <ListPreference
+            android:defaultValue="aip"
+            android:dialogTitle="@string/dsp_aip_mode_description"
+            android:entries="@array/dsp_aip_mode"
+            android:entryValues="@array/dsp_aip_mode"
+            android:key="dsp_aip_mode"
+            android:summary="%s"
+            android:title="@string/dsp_aip_mode" />
+        <EditTextPreference
+            android:defaultValue="0.25"
             android:dialogTitle="@string/postprocess_yolov5_conf_threshold_description"
             android:key="postprocess_yolov5_conf_threshold"
             android:title="@string/postprocess_yolov5_conf_threshold"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="0.4"
+            android:defaultValue="0.45"
             android:dialogTitle="@string/postprocess_yolov5_conf_threshold_person_description"
             android:key="postprocess_yolov5_conf_threshold_person"
             android:title="@string/postprocess_yolov5_conf_threshold_person"
@@ -82,100 +317,23 @@
             android:title="@string/postprocess_yolov5_margins"
             app:useSimpleSummaryProvider="true" />
         <ListPreference
-            android:defaultValue="aip"
-            android:dialogTitle="@string/dsp_aip_mode_description"
-            android:entries="@array/dsp_aip_mode"
-            android:entryValues="@array/dsp_aip_mode"
-            android:key="dsp_aip_mode"
+            android:dialogTitle="@string/muxer_priority_description"
+            android:entries="@array/muxer_priority"
+            android:entryValues="@array/muxer_priority"
+            android:key="muxer_priority"
             android:summary="%s"
-            android:title="@string/dsp_aip_mode" />
+            android:title="@string/muxer_priority" />
         <EditTextPreference
-            android:defaultValue="0"
-            android:dialogTitle="@string/filter_box_tracking_outside_percent_description"
-            android:key="filter_box_tracking_outside_percent"
-            android:title="@string/filter_box_tracking_outside_percent"
+            android:defaultValue="/vendor/etc/camera/labels_seg.txt"
+            android:dialogTitle="@string/postprocess_segmentation_labels_file_description"
+            android:key="postprocess_segmentation_labels_file"
+            android:title="@string/postprocess_segmentation_labels_file"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="60"
-            android:dialogTitle="@string/filter_default_detection_audio_doa_list_size_description"
-            android:key="filter_default_detection_audio_doa_list_size"
-            android:title="@string/filter_default_detection_audio_doa_list_size"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="60"
-            android:dialogTitle="@string/filter_default_history_filter_depth_description"
-            android:key="filter_default_history_filter_depth"
-            android:title="@string/filter_default_history_filter_depth"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="60"
-            android:dialogTitle="@string/filter_default_signal_pos_list_size_description"
-            android:key="filter_default_signal_pos_list_size"
-            android:title="@string/filter_default_signal_pos_list_size"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="28.0"
-            android:dialogTitle="@string/filter_detection_audio_doa_threshold_high_description"
-            android:key="filter_detection_audio_doa_threshold_high"
-            android:title="@string/filter_detection_audio_doa_threshold_high"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="15.0"
-            android:dialogTitle="@string/filter_detection_audio_doa_threshold_low_description"
-            android:key="filter_detection_audio_doa_threshold_low"
-            android:title="@string/filter_detection_audio_doa_threshold_low"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="100"
-            android:dialogTitle="@string/filter_doa_detected_delay_description"
-            android:key="filter_doa_detected_delay"
-            android:title="@string/filter_doa_detected_delay"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="50"
-            android:dialogTitle="@string/filter_doa_change_delay_description"
-            android:key="filter_doa_change_delay"
-            android:title="@string/filter_doa_change_delay"
-            app:useSimpleSummaryProvider="true" />
-        <ListPreference
-            android:defaultValue="0"
-            android:dialogTitle="@string/filter_type_description"
-            android:entries="@array/filter_type"
-            android:entryValues="@array/filter_type"
-            android:key="filter_type"
-            android:summary="%s"
-            android:title="@string/filter_type" />
-        <ListPreference
-            android:defaultValue="1"
-            android:dialogTitle="@string/average_fov_filter_en_description"
-            android:entries="@array/average_fov_filter_en"
-            android:entryValues="@array/average_fov_filter_en"
-            android:key="average_fov_filter_en"
-            android:summary="%s"
-            android:title="@string/average_fov_filter_en" />
-        <EditTextPreference
-            android:defaultValue="0.7"
-            android:dialogTitle="@string/speech_probability_threshold_description"
-            android:key="speech_probability_threshold"
-            android:title="@string/speech_probability_threshold"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="20"
-            android:dialogTitle="@string/doa_histogram_res_description"
-            android:key="doa_histogram_res"
-            android:title="@string/doa_histogram_res"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="15"
-            android:dialogTitle="@string/doa_histogram_thres_description"
-            android:key="doa_histogram_thres"
-            android:title="@string/doa_histogram_thres"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="20"
-            android:dialogTitle="@string/sample_interval_description"
-            android:key="sample_interval"
-            android:title="@string/sample_interval"
+            android:defaultValue="/vendor/etc/camera/deeplabv3_quantized.dlc"
+            android:dialogTitle="@string/postprocess_segmentation_model_file_description"
+            android:key="postprocess_segmentation_model_file"
+            android:title="@string/postprocess_segmentation_model_file"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
             android:defaultValue="120"
@@ -184,16 +342,22 @@
             android:title="@string/tracking_roi_release_cnt"
             app:useSimpleSummaryProvider="true" />
         <EditTextPreference
-            android:defaultValue="120"
-            android:dialogTitle="@string/autoframing_roi_release_cnt_description"
-            android:key="autoframing_roi_release_cnt"
-            android:title="@string/autoframing_roi_release_cnt"
-            app:useSimpleSummaryProvider="true" />
-        <EditTextPreference
-            android:defaultValue="0.2"
+            android:defaultValue="0.4"
             android:dialogTitle="@string/tracking_intersect_coef_description"
             android:key="tracking_intersect_coef"
             android:title="@string/tracking_intersect_coef"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="60"
+            android:dialogTitle="@string/tracking_new_entry_list_depth_description"
+            android:key="tracking_new_entry_list_depth"
+            android:title="@string/tracking_new_entry_list_depth"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="4000"
+            android:dialogTitle="@string/tracking_new_entry_timeout_ms_description"
+            android:key="tracking_new_entry_timeout_ms"
+            android:title="@string/tracking_new_entry_timeout_ms"
             app:useSimpleSummaryProvider="true" />
 
     </PreferenceCategory>
@@ -217,21 +381,48 @@
             android:title="@string/gpu_transform_enable_crop" />
         <ListPreference
             android:defaultValue="Disable"
-            android:dialogTitle="@string/doa_dump_csv_description"
-            android:entries="@array/doa_dump_csv"
-            android:entryValues="@array/doa_dump_csv"
-            android:key="doa_dump_csv"
+            android:dialogTitle="@string/csv_logging_enable_description"
+            android:entries="@array/csv_logging_enable"
+            android:entryValues="@array/csv_logging_enable"
+            android:key="csv_logging_enable"
             android:summary="%s"
-            android:title="@string/doa_dump_csv" />
+            android:title="@string/csv_logging_enable" />
+        <EditTextPreference
+            android:defaultValue="/vendor/etc/camera/adoa_beamform.csv	"
+            android:dialogTitle="@string/beamform_log_filename_description"
+            android:key="beamform_log_filename"
+            android:summary="%s"
+            android:title="@string/beamform_log_filename"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="/vendor/etc/camera/adoa_filter.csv"
+            android:dialogTitle="@string/filter_log_filename_description"
+            android:key="filter_log_filename"
+            android:summary="%s"
+            android:title="@string/filter_log_filename"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="/vendor/etc/camera/adoa_histogram.csv"
+            android:dialogTitle="@string/histogram_log_filename_description"
+            android:key="histogram_log_filename"
+            android:summary="%s"
+            android:title="@string/histogram_log_filename"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="/vendor/etc/camera/adoa_device.csv"
+            android:dialogTitle="@string/device_log_filename_description"
+            android:key="device_log_filename"
+            android:summary="%s"
+            android:title="@string/device_log_filename"
+            app:useSimpleSummaryProvider="true" />
         <ListPreference
             android:defaultValue="Disable"
-            android:dialogTitle="@string/beamforming_adoa_logging_description"
-            android:entries="@array/beamforming_adoa_logging"
-            android:entryValues="@array/beamforming_adoa_logging"
-            android:key="beamforming_adoa_logging"
+            android:dialogTitle="@string/audio_plot_description"
+            android:entries="@array/audio_plot"
+            android:entryValues="@array/audio_plot"
+            android:key="audio_plot"
             android:summary="%s"
-            android:title="@string/beamforming_adoa_logging" />
-
+            android:title="@string/audio_plot" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Reset">
