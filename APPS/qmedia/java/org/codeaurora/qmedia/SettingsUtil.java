@@ -86,6 +86,8 @@ class SettingsData {
     protected Boolean isHDMIinAudioEnabled;
     protected Boolean isHDMIinVideoEnabled;
     protected Boolean isReprocEnabled;
+    protected int reprocWidth;
+    protected int reprocHeight;
     protected Boolean isRecorderEnabled;
     protected Boolean isTunnelingEnabled;
 
@@ -128,6 +130,12 @@ public class SettingsUtil {
         hdmi_1_setting.camWidth = Integer.parseInt(resolutions[0]);
         hdmi_1_setting.camHeight = Integer.parseInt(resolutions[1]);
 
+        String[] reprocResolutions;
+        reprocResolutions = pref.getString("hdmi_1_reproc_size", "1920x1080").split("x", 2);
+
+        hdmi_1_setting.reprocWidth = Integer.parseInt(reprocResolutions[0]);
+        hdmi_1_setting.reprocHeight = Integer.parseInt(reprocResolutions[1]);
+
         hdmi_1_setting.isHDMIinCameraEnabled = true;
         try {
             for (String camID : manager.getCameraIdList()) {
@@ -167,6 +175,11 @@ public class SettingsUtil {
 
         hdmi_2_setting.camWidth = Integer.parseInt(resolutions[0]);
         hdmi_2_setting.camHeight = Integer.parseInt(resolutions[1]);
+
+        reprocResolutions = pref.getString("hdmi_2_reproc_size", "1920x1080").split("x", 2);
+
+        hdmi_2_setting.reprocWidth = Integer.parseInt(reprocResolutions[0]);
+        hdmi_2_setting.reprocHeight = Integer.parseInt(reprocResolutions[1]);
 
         hdmi_2_setting.isHDMIinCameraEnabled = true;
         try {
@@ -208,6 +221,11 @@ public class SettingsUtil {
 
         hdmi_3_setting.camWidth = Integer.parseInt(resolutions[0]);
         hdmi_3_setting.camHeight = Integer.parseInt(resolutions[1]);
+
+        reprocResolutions = pref.getString("hdmi_3_reproc_size", "1920x1080").split("x", 2);
+
+        hdmi_3_setting.reprocWidth = Integer.parseInt(reprocResolutions[0]);
+        hdmi_3_setting.reprocHeight = Integer.parseInt(reprocResolutions[1]);
 
         hdmi_3_setting.isHDMIinCameraEnabled = true;
         try {
@@ -251,6 +269,8 @@ public class SettingsUtil {
             Log.d(TAG, "Is HDMIin Audio Enabled : " + data.get(it).isHDMIinAudioEnabled);
             Log.d(TAG, "Is HDMIin Video Enabled : " + data.get(it).isHDMIinVideoEnabled);
             Log.d(TAG, "Is Reproc Enabled : " + data.get(it).isReprocEnabled);
+            Log.d(TAG, "Reproc width : " + data.get(it).reprocWidth);
+            Log.d(TAG, "Reproc height : " + data.get(it).reprocHeight);
             Log.d(TAG, "Is Recorder Enabled : " + data.get(it).isRecorderEnabled);
             Log.d(TAG, "Is Tunneling Enabled : " + data.get(it).isTunnelingEnabled);
             Log.d(TAG, "#####################################");
@@ -280,6 +300,14 @@ public class SettingsUtil {
 
     public int getCameraHeight(int index) {
         return data.get(index).camHeight;
+    }
+
+    public int getReprocWidth(int index) {
+        return data.get(index).reprocWidth;
+    }
+
+    public int getReprocHeight(int index) {
+        return data.get(index).reprocHeight;
     }
 
     public String getSnpeRuntime(int index) {

@@ -193,9 +193,11 @@ public class PresentationBase extends Presentation implements CameraDisconnected
                     surface.getHolder().addCallback(new SurfaceHolder.Callback() {
                         @Override
                         public void surfaceCreated(SurfaceHolder holder) {
-                            holder.setFixedSize(1920, 1080);
+                            int reprocWidth = mData.getReprocWidth(mPresentationIndex);
+                            int reprocHeight = mData.getReprocHeight(mPresentationIndex);
+                            holder.setFixedSize(reprocWidth, reprocHeight);
                             holder.setFormat(ImageFormat.YUV_420_888);
-                            createReprocStream();
+                            createReprocStream(reprocWidth, reprocHeight);
                         }
 
                         @Override
@@ -490,11 +492,13 @@ public class PresentationBase extends Presentation implements CameraDisconnected
         Log.v(TAG, "Stopping secondary display Exit");
     }
 
-    private void createReprocStream() {
+    private void createReprocStream(int reprocWidth, int reprocHeight) {
         mSurfaceCount++;
         if (mSurfaceCount == mSurfaceViewList.size()) {
             mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-            mCameraBase.enableReproc(mImageView);
+            int imageWidth = mData.getCameraWidth(mPresentationIndex);
+            int imageHeight = mData.getCameraHeight(mPresentationIndex);
+            mCameraBase.enableReproc(mImageView, imageWidth, imageHeight, reprocWidth, reprocHeight);
             for (SurfaceView surface : mSurfaceViewList) {
                 mCameraBase.addReprocStream(surface);
             }

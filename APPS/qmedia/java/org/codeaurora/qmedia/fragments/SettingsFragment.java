@@ -181,6 +181,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         SwitchPreference hdmiin_audio_enable = mPrefScreen.findPreference("hdmi_1_hdmi_in_audio_enable");
         SwitchPreference hdmiin_video_enable = mPrefScreen.findPreference("hdmi_1_hdmi_in_video_enable");
         SwitchPreference reproc_enable = mPrefScreen.findPreference("hdmi_1_reproc_enable");
+        ListPreference reproc_size = mPrefScreen.findPreference("hdmi_1_reproc_size");
         SwitchPreference recorder_enable = mPrefScreen.findPreference("hdmi_1_recorder_enable");
         SwitchPreference tunneling_enable = mPrefScreen.findPreference("hdmi_1_tunneling_enable");
 
@@ -209,6 +210,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (recorder_enable.isVisible()) {
                 recorder_enable.setVisible(false);
             }
@@ -235,12 +239,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
+                reproc_size.setVisible(false);
                 camera_size.setVisible(false);
                 recorder_enable.setVisible(false);
             } else {
                 hdmiin_audio_enable.setVisible(false);
                 hdmiin_video_enable.setVisible(false);
                 reproc_enable.setVisible(true);
+                reproc_size.setVisible(true);
                 camera_size.setVisible(true);
                 recorder_enable.setVisible(true);
             }
@@ -269,6 +275,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(false);
             }
@@ -280,6 +289,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             hdmiin_audio_enable.setVisible(false);
             hdmiin_video_enable.setVisible(false);
             reproc_enable.setVisible(false);
+            reproc_size.setVisible(false);
             snpe_runtime.setVisible(false);
             recorder_enable.setVisible(false);
             tunneling_enable.setVisible(false);
@@ -294,6 +304,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         hdmiin_audio_enable = mPrefScreen.findPreference("hdmi_2_hdmi_in_audio_enable");
         hdmiin_video_enable = mPrefScreen.findPreference("hdmi_2_hdmi_in_video_enable");
         reproc_enable = mPrefScreen.findPreference("hdmi_2_reproc_enable");
+        reproc_size = mPrefScreen.findPreference("hdmi_2_reproc_size");
         recorder_enable = mPrefScreen.findPreference("hdmi_2_recorder_enable");
         tunneling_enable = mPrefScreen.findPreference("hdmi_2_tunneling_enable");
 
@@ -322,6 +333,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (recorder_enable.isVisible()) {
                 recorder_enable.setVisible(false);
             }
@@ -348,12 +362,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
+                reproc_size.setVisible(false);
                 camera_size.setVisible(false);
                 recorder_enable.setVisible(false);
             } else {
                 hdmiin_audio_enable.setVisible(false);
                 hdmiin_video_enable.setVisible(false);
                 reproc_enable.setVisible(true);
+                reproc_size.setVisible(true);
                 camera_size.setVisible(true);
                 recorder_enable.setVisible(true);
             }
@@ -382,6 +398,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(false);
             }
@@ -392,6 +411,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             hdmiin_audio_enable.setVisible(false);
             hdmiin_video_enable.setVisible(false);
             reproc_enable.setVisible(false);
+            reproc_size.setVisible(false);
             camera_size.setVisible(false);
             snpe_runtime.setVisible(false);
             recorder_enable.setVisible(false);
@@ -407,6 +427,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         hdmiin_audio_enable = mPrefScreen.findPreference("hdmi_3_hdmi_in_audio_enable");
         hdmiin_video_enable = mPrefScreen.findPreference("hdmi_3_hdmi_in_video_enable");
         reproc_enable = mPrefScreen.findPreference("hdmi_3_reproc_enable");
+        reproc_size = mPrefScreen.findPreference("hdmi_3_reproc_size");
         recorder_enable = mPrefScreen.findPreference("hdmi_3_recorder_enable");
         tunneling_enable = mPrefScreen.findPreference("hdmi_3_tunneling_enable");
 
@@ -435,6 +456,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (recorder_enable.isVisible()) {
                 recorder_enable.setVisible(false);
             }
@@ -461,12 +485,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
+                reproc_size.setVisible(false);
                 camera_size.setVisible(false);
                 recorder_enable.setVisible(false);
             } else {
                 hdmiin_audio_enable.setVisible(false);
                 hdmiin_video_enable.setVisible(false);
                 reproc_enable.setVisible(true);
+                reproc_size.setVisible(true);
                 camera_size.setVisible(true);
                 recorder_enable.setVisible(true);
             }
@@ -495,6 +521,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (reproc_enable.isVisible()) {
                 reproc_enable.setVisible(false);
             }
+            if (reproc_size.isVisible()) {
+                reproc_size.setVisible(false);
+            }
             if (tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(false);
             }
@@ -506,6 +535,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             hdmiin_video_enable.setVisible(false);
             reproc_enable.setVisible(false);
             camera_size.setVisible(false);
+            reproc_size.setVisible(false);
             snpe_runtime.setVisible(false);
             recorder_enable.setVisible(false);
             tunneling_enable.setVisible(false);
