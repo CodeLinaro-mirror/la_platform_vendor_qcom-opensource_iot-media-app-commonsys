@@ -622,9 +622,11 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
             surface.getHolder().addCallback(new SurfaceHolder.Callback() {
                 @Override
                 public void surfaceCreated(SurfaceHolder holder) {
-                    holder.setFixedSize(1920, 1080);
+                    int reprocWidth = mSettingData.getReprocWidth(0);
+                    int reprocHeight = mSettingData.getReprocHeight(0);
+                    holder.setFixedSize(reprocWidth, reprocHeight);
                     holder.setFormat(ImageFormat.YUV_420_888);
-                    createReprocStream();
+                    createReprocStream(reprocWidth, reprocHeight);
                 }
 
                 @Override
@@ -640,11 +642,13 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
         Log.v(TAG, "handleCameraAndReproc exit");
     }
 
-    private void createReprocStream() {
+    private void createReprocStream(int reprocWidth, int reprocHeight) {
         mSurfaceCount++;
         if (mSurfaceCount == mSurfaceViewList.size()) {
             mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-            mCameraBase.enableReproc(mImageView);
+            int imageWidth = mSettingData.getCameraWidth(0);
+            int imageHeight = mSettingData.getCameraHeight(0);
+            mCameraBase.enableReproc(mImageView, imageWidth, imageHeight, reprocWidth, reprocHeight);
             for (SurfaceView surface : mSurfaceViewList) {
                 mCameraBase.addReprocStream(surface);
             }

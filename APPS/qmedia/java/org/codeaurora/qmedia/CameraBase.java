@@ -77,6 +77,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.InputConfiguration;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
+import android.hardware.camera2.CameraCharacteristics;
 import android.media.Image;
 import android.media.ImageReader;
 import android.media.ImageWriter;
@@ -173,9 +174,13 @@ public class CameraBase {
     private TotalCaptureResult mLastTotalCaptureResult;
     private Thread mCameraReprocThread;
     private ImageView mImageView;
+    private int mImageWidth;
+    private int mImageHeight;
+    private int mReprocWidth;
+    private int mReprocHeight;
     private Bitmap mImageViewBitmap = null;
-    private int[] mROIDataSetOne = {0, 0, 1920, 1080, 1920, 0, 1920, 1080, 0, 1080, 1920, 1080};
-    private int[] mROIDataSetTwo = {1920, 0, 1920, 1080, 0, 1080, 1920, 1080, 0, 0, 1920, 1080};
+    private int[] mROIDataSetOne;
+    private int[] mROIDataSetTwo;
     private int mFrameNumber = 0;
     private int mFrameCount = 0;
     private long mInitialTime;
@@ -370,12 +375,24 @@ public class CameraBase {
         CameraManager manager =
                 (CameraManager) mCameraContext.getSystemService(Context.CAMERA_SERVICE);
         try {
+            CameraCharacteristics characteristics = manager.getCameraCharacteristics(id);
+            Rect activeArraySize = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+            if (activeArraySize != null) {
+                int width = activeArraySize.width() / 2;
+                int height = activeArraySize.height() / 2;
+                mROIDataSetOne = new int[]{0, 0, width, height, width, 0, width, height, 0, height, width, height};
+                mROIDataSetTwo = new int[]{width, 0, width, height, 0, height, width, height, 0, 0, width, height};
+            }
+        } catch (CameraAccessException e) {
+            e.printStackTrace();
+        }
+        try {
             mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS);
             startBackgroundThread();
             manager.openCamera(id, mStateCallback, mBackgroundHandler);
             mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS);
             if (mEnableReproc) {
-                mImageViewBitmap = Bitmap.createBitmap(3840, 2160, Bitmap.Config.ARGB_8888);
+                mImageViewBitmap = Bitmap.createBitmap(mImageWidth, mImageHeight, Bitmap.Config.ARGB_8888);
                 mCameraReprocThread = new CameraReprocThread();
                 mCameraIsRunning.set(true);
                 mCameraReprocThread.start();
@@ -441,11 +458,15 @@ public class CameraBase {
         mStreamSurface.add(surface);
     }
 
-    public void enableReproc(ImageView view) {
+    public void enableReproc(ImageView view, int imageWidth, int imageHeight, int reprocWidth, int reprocHeight) {
         mEnableReproc = true;
         mImageView = view;
+        mImageWidth = imageWidth;
+        mImageHeight = imageHeight;
+        mReprocWidth = reprocWidth;
+        mReprocHeight = reprocHeight;
         if (mYUVImageReader == null) {
-            mYUVImageReader = ImageReader.newInstance(3840, 2160,
+            mYUVImageReader = ImageReader.newInstance(mImageWidth, mImageHeight,
                     ImageFormat.YUV_420_888, 8);
             mYUVImageReader
                     .setOnImageAvailableListener(mYUVImageReaderListener, mImageListenerHandler);
@@ -527,7 +548,7 @@ public class CameraBase {
 
             if (mEnableReproc) {
                 if (mYUVImageReader == null) {
-                    mYUVImageReader = ImageReader.newInstance(3840, 2160, ImageFormat.YUV_420_888, 8);
+                    mYUVImageReader = ImageReader.newInstance(mReprocWidth, mReprocHeight, ImageFormat.YUV_420_888, 8);
                     mYUVImageReader
                             .setOnImageAvailableListener(mYUVImageReaderListener, mImageListenerHandler);
                 }
@@ -563,7 +584,7 @@ public class CameraBase {
 
             sessionCfg.setSessionParameters(mPreviewRequestBuilder.build());
             if (mEnableReproc) {
-                InputConfiguration inputConfig = new InputConfiguration(3840, 2160,
+                InputConfiguration inputConfig = new InputConfiguration(mImageWidth, mImageHeight,
                         ImageFormat.YUV_420_888);
                 sessionCfg.setInputConfiguration(inputConfig);
             }

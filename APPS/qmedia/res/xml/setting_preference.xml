@@ -101,6 +101,7 @@
             android:entries="@array/camera_resolutions"
             android:entryValues="@array/camera_resolutions"
             android:key="hdmi_1_camera_size"
+            android:summary="%s"
             android:title="Camera resolution" />
 
         <androidx.preference.ListPreference
@@ -125,6 +126,14 @@
             android:defaultValue="false"
             android:key="hdmi_1_reproc_enable"
             android:title="Reproc enable" />
+
+        <androidx.preference.ListPreference
+            android:dependency="hdmi_1_reproc_enable"
+            android:entries="@array/reproc_resolutions"
+            android:entryValues="@array/reproc_resolutions"
+            android:key="hdmi_1_reproc_size"
+            android:summary="%s"
+            android:title="Reproc resolution" />
 
         <androidx.preference.SwitchPreference
             android:defaultValue="false"
@@ -176,6 +185,7 @@
             android:entries="@array/camera_resolutions"
             android:entryValues="@array/camera_resolutions"
             android:key="hdmi_2_camera_size"
+            android:summary="%s"
             android:title="Camera resolution" />
 
         <androidx.preference.ListPreference
@@ -200,6 +210,14 @@
             android:defaultValue="false"
             android:key="hdmi_2_reproc_enable"
             android:title="Reproc enable" />
+
+        <androidx.preference.ListPreference
+            android:dependency="hdmi_2_reproc_enable"
+            android:entries="@array/reproc_resolutions"
+            android:entryValues="@array/reproc_resolutions"
+            android:key="hdmi_2_reproc_size"
+            android:summary="%s"
+            android:title="Reproc resolution" />
 
         <androidx.preference.SwitchPreference
             android:defaultValue="false"
@@ -251,6 +269,7 @@
             android:entries="@array/camera_resolutions"
             android:entryValues="@array/camera_resolutions"
             android:key="hdmi_3_camera_size"
+            android:summary="%s"
             android:title="Camera resolution" />
 
         <androidx.preference.ListPreference
@@ -275,6 +294,14 @@
             android:defaultValue="false"
             android:key="hdmi_3_reproc_enable"
             android:title="Reproc enable" />
+
+        <androidx.preference.ListPreference
+            android:dependency="hdmi_3_reproc_enable"
+            android:entries="@array/reproc_resolutions"
+            android:entryValues="@array/reproc_resolutions"
+            android:key="hdmi_3_reproc_size"
+            android:summary="%s"
+            android:title="Reproc resolution" />
 
         <androidx.preference.SwitchPreference
             android:defaultValue="false"
