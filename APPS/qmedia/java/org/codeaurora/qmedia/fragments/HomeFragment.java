@@ -493,7 +493,7 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
             try {
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 String cameraType = characteristics.get(CAMERA_TYPE_CHARACTERISTIC_KEY);
-                if (cameraType != null && cameraType.equals("screen_share_internal")) {
+                if (cameraType != null && cameraType.equals("screen_share_internal") && cameraId.equals(mSettingData.getCameraID(0))) {
                     Log.i(TAG, "cameraId " + cameraId + " is screen_share_internal");
                     if (!mCameraRunning.get()) {
                         mHDMIinCameraID = cameraId;
