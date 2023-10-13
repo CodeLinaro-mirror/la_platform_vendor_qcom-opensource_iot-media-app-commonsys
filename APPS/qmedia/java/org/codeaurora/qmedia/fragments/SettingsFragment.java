@@ -94,7 +94,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private PreferenceScreen mPrefScreen;
     private static final CameraCharacteristics.Key<String> CAMERA_TYPE_CHARACTERISTIC_KEY =
             new CameraCharacteristics.Key<>("camera.type", String.class);
-    private String mHDMIinCameraID;
+    private ArrayList<String> externalCameras = new ArrayList<>();
     private Context mContext;
 
     @Override
@@ -133,8 +133,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 CameraCharacteristics characteristics = manager.getCameraCharacteristics(cameraId);
                 String cameraType = characteristics.get(CAMERA_TYPE_CHARACTERISTIC_KEY);
                 if (cameraType != null && cameraType.equals("screen_share_internal")) {
-                    Log.i(TAG, "mHDMIinCameraID is " + cameraId);
-                    mHDMIinCameraID = cameraId;
+                    Log.i(TAG, "External Camera available is " + cameraId);
+                    externalCameras.add(cameraId);
                     populateCameraIDs();
                     updatePreference();
                 }
@@ -235,7 +235,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (!tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(true);
             }
-            if (camera_id.getValue().equals(mHDMIinCameraID)) {
+            if (externalCameras.contains(camera_id.getValue())) {
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
@@ -358,7 +358,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (!tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(true);
             }
-            if (camera_id.getValue().equals(mHDMIinCameraID)) {
+            if (externalCameras.contains(camera_id.getValue())) {
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
@@ -481,7 +481,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (!tunneling_enable.isVisible()) {
                 tunneling_enable.setVisible(true);
             }
-            if (camera_id.getValue().equals(mHDMIinCameraID)) {
+            if (externalCameras.contains(camera_id.getValue())) {
                 hdmiin_audio_enable.setVisible(true);
                 hdmiin_video_enable.setVisible(true);
                 reproc_enable.setVisible(false);
@@ -591,8 +591,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
         ArrayList<String> cameraIDs = new ArrayList<>();
         try {
             for (String camID : cameraManager.getCameraIdList()) {
-                if (camID.equals(mHDMIinCameraID)) {
-                    detectedCameras.add("HDMIin");
+                CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camID);
+                String cameraType = characteristics.get(CAMERA_TYPE_CHARACTERISTIC_KEY);
+                if (cameraType != null && cameraType.equals("screen_share_internal")) {
+                    detectedCameras.add("Content_Share(" + camID + ")");
                 } else {
                     detectedCameras.add(getLensOrientationString(
                             cameraManager.getCameraCharacteristics(camID)
