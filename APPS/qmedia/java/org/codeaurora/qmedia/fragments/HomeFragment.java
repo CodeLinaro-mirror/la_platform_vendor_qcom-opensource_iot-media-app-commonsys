@@ -145,6 +145,7 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     //private SnpeBase mSnpeBase = null;
     private MediaRecorder mRecorder;
     private Rect mPrimaryDisplaySize = null;
+    private final Object lock = new Object();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -509,26 +510,41 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                             }
                             Log.i(TAG, "HDMIin dynamic resolution selected as " +
                                     resolution[0].getWidth() + "x" + resolution[0].getHeight());
+                            int width = resolution[0].getWidth();
+                            int height = resolution[0].getHeight();
+
                             requireActivity().runOnUiThread(() -> {
-                                mHDMIinSurfaceHolder.setFixedSize(resolution[0].getWidth(), resolution[0].getHeight());
+                                synchronized (lock) {
+                                    mHDMIinSurfaceHolder.setFixedSize(width, height);
+                                    lock.notify();
+                                }
                             });
-                            mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-                            mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
-                            // CSI - DSI Tunneling
-                            if (mSettingData.getIsTunnelingEnabled(0)) {
-                                mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
-                            }
-                            if (mSettingData.getIsHDMIinVideoEnabled(0)) {
-                                // Create Encoder instance if Video is enabled
-                                mMediaCodecRecorder =
-                                        new MediaCodecRecorder(mContext, resolution[0].getWidth(),
-                                                resolution[0].getHeight(),
-                                                mSettingData.getIsHDMIinAudioEnabled(0));
-                                mCameraBase.addRecorderStream(
-                                        mMediaCodecRecorder.getRecorderSurface());
-                            }
-                            if (mSettingData.getIsHDMIinAudioEnabled(0)) {
-                                mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
+
+                            synchronized (lock) {
+                                try {
+                                    lock.wait();
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+
+                                mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
+                                mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
+                                // CSI - DSI Tunneling
+                                if (mSettingData.getIsTunnelingEnabled(0)) {
+                                    mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
+                                }
+                                if (mSettingData.getIsHDMIinVideoEnabled(0)) {
+                                    // Create Encoder instance if Video is enabled
+                                    mMediaCodecRecorder =
+                                            new MediaCodecRecorder(mContext, resolution[0].getWidth(),
+                                                    resolution[0].getHeight(),
+                                                    mSettingData.getIsHDMIinAudioEnabled(0));
+                                    mCameraBase.addRecorderStream(
+                                            mMediaCodecRecorder.getRecorderSurface());
+                                }
+                                if (mSettingData.getIsHDMIinAudioEnabled(0)) {
+                                    mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
+                                }
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
