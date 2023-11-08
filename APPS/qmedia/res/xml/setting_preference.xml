@@ -317,7 +317,7 @@
 
     <PreferenceCategory android:title="Calibration">
         <androidx.preference.SwitchPreference
-            android:defaultValue="false"
+            android:defaultValue="true"
             android:key="msteams_cert_calibration"
             android:title="MS Teams Certification" />
     </PreferenceCategory>
