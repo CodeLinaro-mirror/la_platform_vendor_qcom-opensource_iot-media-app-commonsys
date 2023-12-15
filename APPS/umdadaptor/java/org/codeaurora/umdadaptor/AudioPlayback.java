@@ -126,19 +126,17 @@ public class AudioPlayback {
                         mIsAudioSubmitThreadRunning.set(true);
                         mAudioSemaphore.release();
                         while (mIsAudioSubmitThreadRunning.get()) {
-                            if (!mAudioQueue.isEmpty()) {
-                                byte[] bData = new byte[0];
-                                try {
-                                    bData = mAudioQueue.take();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                ArrayList<Byte> data = toByteArray(bData, 0, bData.length);
-                                try {
-                                    mUMDAdaptor.submitAudioBuffer(data);
-                                } catch (RemoteException e) {
-                                    Log.i(TAG, "Remote Exception in Audio Submit thread");
-                                }
+                            byte[] bData = new byte[0];
+                            try {
+                                bData = mAudioQueue.take();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            ArrayList<Byte> data = toByteArray(bData, 0, bData.length);
+                            try {
+                                mUMDAdaptor.submitAudioBuffer(data);
+                            } catch (RemoteException e) {
+                                Log.i(TAG, "Remote Exception in Audio Submit thread");
                             }
                         }
                         Log.v(TAG, "mAudioSubmitThread exit");

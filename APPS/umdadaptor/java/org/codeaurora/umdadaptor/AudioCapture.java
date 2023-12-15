@@ -108,21 +108,19 @@ public class AudioCapture {
                     mIsAudioTrackThreadRunning.set(true);
                     mAudioSemaphore.release();
                     while (mIsAudioTrackThreadRunning.get()) {
-                        if (!mAudioQueue.isEmpty()) {
-                            if (firstTime) {
-                                if (mAudioQueue.remainingCapacity() > UNDER_RUN_THRESHHOLD)
-                                    continue;
-                                else
-                                    firstTime = false;
-                            }
-                            ArrayList<Byte> bData = new ArrayList<>();
-                            try {
-                                bData = mAudioQueue.take();
-                                byte[] temp = arrayListToByteArray(bData);
-                                mAudioTrack.write(temp, 0, temp.length);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
+                        if (firstTime) {
+                            if (mAudioQueue.remainingCapacity() > UNDER_RUN_THRESHHOLD)
+                                continue;
+                            else
+                                firstTime = false;
+                        }
+                        ArrayList<Byte> bData = new ArrayList<>();
+                        try {
+                            bData = mAudioQueue.take();
+                            byte[] temp = arrayListToByteArray(bData);
+                            mAudioTrack.write(temp, 0, temp.length);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                     Log.v(TAG, "mAudioTrackThread exit");
