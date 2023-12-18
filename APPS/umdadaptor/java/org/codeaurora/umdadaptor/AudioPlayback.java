@@ -131,6 +131,7 @@ public class AudioPlayback {
                                 bData = mAudioQueue.take();
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
+                                continue;
                             }
                             ArrayList<Byte> data = toByteArray(bData, 0, bData.length);
                             try {
