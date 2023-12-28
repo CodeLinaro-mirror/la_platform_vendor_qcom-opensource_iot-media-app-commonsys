@@ -136,7 +136,11 @@ public class HDMIinAudioPlayback {
                     byte[] bData = new byte[mAudioBufferBytes];
                     while (isAudioRecordThreadRunning.get()) {
                         mAudioRecorder.read(bData, 0, mAudioBufferBytes, AudioRecord.READ_BLOCKING);
-                        mAudioQueue.add(bData);
+                        try {
+                            mAudioQueue.put(bData);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
                     Log.v(TAG, "mRecordThread exit");
                 }
@@ -149,10 +153,14 @@ public class HDMIinAudioPlayback {
                     isAudioPlaybackThreadRunning.set(true);
                     mRecordPlaybackSemaphore.release();
                     while (isAudioPlaybackThreadRunning.get()) {
-                        if (!mAudioQueue.isEmpty()) {
-                            byte[] bData = mAudioQueue.remove();
-                            mAudioTrack.write(bData, 0, mAudioBufferBytes, AudioTrack.WRITE_NON_BLOCKING);
+                        byte[] bData = new byte[0];
+                        try {
+                            bData = mAudioQueue.take();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            continue;
                         }
+                        mAudioTrack.write(bData, 0, mAudioBufferBytes, AudioTrack.WRITE_NON_BLOCKING);
                     }
                     mRecordPlaybackSemaphore.release();
                     Log.v(TAG, "mPlaybackThread exit");
