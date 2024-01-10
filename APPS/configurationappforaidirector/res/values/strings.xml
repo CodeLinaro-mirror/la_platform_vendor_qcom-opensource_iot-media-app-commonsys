@@ -38,7 +38,7 @@
     <string name="audio_plot">Audio plot enable</string>
     <string name="audio_plot_description">Flag to enable audio polar activity plot</string>
     <string name="autoframing_filter_size">Time to react</string>
-    <string name="autoframing_filter_size_hint">Type: Int, Range: 10–60</string>
+    <string name="autoframing_filter_size_hint">Type: Int</string>
     <string name="autoframing_filter_size_description">AFR filter debt in frames. Bigger size improve stabilization but it increase response time.</string>
     <string name="autoframing_filter_average_size">Average count of filter_size</string>
     <string name="autoframing_filter_average_size_hint">Type: Int, Range: 10–60</string>
@@ -83,7 +83,7 @@
     <string name="adoa_mixer_open_retry_delay_hint">Type: Int, Range: 100–10000</string>
     <string name="adoa_mixer_open_retry_delay_description">Time to wait in between attempts to open the Soundcard mixer (Milliseconds)</string>
     <string name="adoa_mixer_open_max_retries">Mixer Open Maximum Retries</string>
-    <string name="adoa_mixer_open_max_retries_hint">Type: Int, Range: 1–100</string>
+    <string name="adoa_mixer_open_max_retries_hint">Type: Int, Range: 0–100</string>
     <string name="adoa_mixer_open_max_retries_description">Maximum number of attempts to open the Soundcard mixer</string>
     <string name="filter_select">Audio filter</string>
     <string name="filter_select_description">Audio filter to be selected: 0 - Histogram library for audio filtration; 1 - Internal audio filter</string>
@@ -199,4 +199,20 @@
     <string name="tracking_new_entry_timeout_ms">New Entry Timeout</string>
     <string name="tracking_new_entry_timeout_ms_hint">Type: Int, Range: 1–10000 (millisecs)</string>
     <string name="tracking_new_entry_timeout_ms_description">The time to expire for a potential new tracking entry that has not yet collected the required number of intersections.</string>
+    <string name="horizontal_flip">Horizontal Flip</string>
+    <string name="horizontal_flip_description">Control the image flip for ML pipe</string>
+    <string name="vertical_flip">Vertical Flip</string>
+    <string name="vertical_flip_description">Control the image flip for ML pipe</string>
+    <string name="nms_threshold">NMS Threshold</string>
+    <string name="nms_threshold_hint">Type: float</string>
+    <string name="nms_threshold_description">Difference to consider to separate bounding boxes removing duplicate bounding boxes</string>
+    <string name="output_layers">Output Layers</string>
+    <string name="output_layers_hint">Type: vector of strings</string>
+    <string name="output_layers_description">Name of the output ML model to configure SNPE</string>
+    <string name="roi_release_count">ROI release count</string>
+    <string name="roi_release_count_hint">Type: Int</string>
+    <string name="roi_release_count_description">Number of frames grid menager will show on window after person disappear.</string>
+    <string name="layout_file">Layout File</string>
+    <string name="layout_file_hint">Type: String</string>
+    <string name="layout_file_description">File which describe tiles size in people framing for any count</string>
 </resources>
