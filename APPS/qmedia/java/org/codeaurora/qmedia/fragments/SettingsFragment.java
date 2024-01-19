@@ -592,7 +592,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
         try {
             for (String camID : cameraManager.getCameraIdList()) {
                 CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(camID);
-                String cameraType = characteristics.get(CAMERA_TYPE_CHARACTERISTIC_KEY);
+                String cameraType = null;
+                try {
+                    cameraType = characteristics.get(CAMERA_TYPE_CHARACTERISTIC_KEY);
+                } catch (IllegalArgumentException e) {
+                    e.printStackTrace();
+                }
                 if (cameraType != null && cameraType.equals("screen_share_internal")) {
                     detectedCameras.add("Content_Share(" + camID + ")");
                 } else {
