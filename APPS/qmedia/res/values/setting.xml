@@ -94,9 +94,11 @@
     </string-array>
 
     <string-array name="camera_resolutions">
-        <item>1280x720</item>>
+        <item>1280x720</item>
         <item>1920x1080</item>
         <item>3840x2160</item>
+        <item>4624x2600</item>
+        <item>4608x3456</item>
     </string-array>
 
     <string-array name="reproc_resolutions">
