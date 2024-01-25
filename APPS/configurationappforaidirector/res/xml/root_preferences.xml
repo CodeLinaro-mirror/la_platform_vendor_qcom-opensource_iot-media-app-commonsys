@@ -359,7 +359,46 @@
             android:key="tracking_new_entry_timeout_ms"
             android:title="@string/tracking_new_entry_timeout_ms"
             app:useSimpleSummaryProvider="true" />
-
+        <ListPreference
+            android:defaultValue="false"
+            android:dialogTitle="@string/horizontal_flip_description"
+            android:entries="@array/horizontal_flip"
+            android:entryValues="@array/horizontal_flip"
+            android:key="horizontal_flip"
+            android:summary="%s"
+            android:title="@string/horizontal_flip" />
+        <ListPreference
+            android:defaultValue="true"
+            android:dialogTitle="@string/vertical_flip_description"
+            android:entries="@array/vertical_flip"
+            android:entryValues="@array/vertical_flip"
+            android:key="vertical_flip"
+            android:summary="%s"
+            android:title="@string/vertical_flip" />
+        <EditTextPreference
+            android:defaultValue="0.1"
+            android:dialogTitle="@string/nms_threshold_description"
+            android:key="nms_threshold"
+            android:title="@string/nms_threshold"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="Conv_139,Conv_140,Conv_141"
+            android:dialogTitle="@string/output_layers_description"
+            android:key="output_layers"
+            android:title="@string/output_layers"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="5"
+            android:dialogTitle="@string/roi_release_count_description"
+            android:key="roi_release_count"
+            android:title="@string/roi_release_count"
+            app:useSimpleSummaryProvider="true" />
+        <EditTextPreference
+            android:defaultValue="/vendor/etc/camera/grid_layout.json"
+            android:dialogTitle="@string/layout_file_description"
+            android:key="layout_file"
+            android:title="@string/layout_file"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/debug_parameters_header">

@@ -131,6 +131,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
         EditTextPreference tracking_intersect_coef = mPrefScreen.findPreference("tracking_intersect_coef");
         EditTextPreference tracking_new_entry_list_depth = mPrefScreen.findPreference("tracking_new_entry_list_depth");
         EditTextPreference tracking_new_entry_timeout_ms = mPrefScreen.findPreference("tracking_new_entry_timeout_ms");
+        ListPreference horizontal_flip = mPrefScreen.findPreference("horizontal_flip");
+        ListPreference vertical_flip = mPrefScreen.findPreference("vertical_flip");
+        EditTextPreference nms_threshold = mPrefScreen.findPreference("nms_threshold");
+        EditTextPreference output_layers = mPrefScreen.findPreference("output_layers");
+        EditTextPreference roi_release_count = mPrefScreen.findPreference("roi_release_count");
+        EditTextPreference layout_file = mPrefScreen.findPreference("layout_file");
 
         String framing_mode_value = pref.getString("framing_mode", "GroupFraming");
         String framing_mode_value_final = "speaker";
@@ -197,6 +203,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if (postprocess_yolov5_margins_value.equals("")) {
             postprocess_yolov5_margins.setText(getResources().getString(R.string.postprocess_yolov5_margins_hint));
         }
+        String horizontal_flip_value = pref.getString("horizontal_flip", "false");
+        String vertical_flip_value = pref.getString("vertical_flip", "true");
 
         if (!gpu_transform_draw_debug.isVisible()) {
             gpu_transform_draw_debug.setVisible(true);
@@ -248,6 +256,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
         if (!muxer_priority.isVisible()) {
             muxer_priority.setVisible(true);
+        }
+        if (!output_layers.isVisible()) {
+            output_layers.setVisible(true);
+        }
+        if (!horizontal_flip.isVisible()) {
+            horizontal_flip.setVisible(true);
+        }
+        if (!vertical_flip.isVisible()) {
+            vertical_flip.setVisible(true);
         }
         if (csv_logging_enable.isVisible()) {
             csv_logging_enable.setVisible(false);
@@ -390,6 +407,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if (tracking_new_entry_timeout_ms.isVisible()) {
             tracking_new_entry_timeout_ms.setVisible(false);
         }
+        if (roi_release_count.isVisible()) {
+            roi_release_count.setVisible(false);
+        }
+        if (layout_file.isVisible()) {
+            layout_file.setVisible(false);
+        }
+        if (nms_threshold.isVisible()) {
+            nms_threshold.setVisible(false);
+        }
 
         try {
             @SuppressWarnings("rawtypes")
@@ -399,6 +425,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
             set.invoke(SystemProperties, "persist.vendor.ai-director.gpu_transform.draw_debug", gpu_transform_draw_debug_value_final);
             set.invoke(SystemProperties, "persist.vendor.ai-director.gpu_transform.enable_crop", gpu_transform_enable_crop_value_final);
             set.invoke(SystemProperties, "persist.vendor.ai-director.dsp-aip-mode", dsp_aip_mode_value);
+            set.invoke(SystemProperties, "persist.vendor.ai-director.horizontal_flip", horizontal_flip_value);
+            set.invoke(SystemProperties, "persist.vendor.ai-director.vertical_flip", vertical_flip_value);
         } catch (IllegalArgumentException iAE) {
             throw iAE;
         } catch (Exception e) {
@@ -411,6 +439,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!postprocess_segmentation_model_file.isVisible()) {
                 postprocess_segmentation_model_file.setVisible(true);
+            }
+            if (!nms_threshold.isVisible()) {
+                nms_threshold.setVisible(true);
             }
             autoframing_filter_size.setDefaultValue("240");
             autoframing_filter_size.setSummary("240");
@@ -451,6 +482,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
             String postprocess_segmentation_model_file_value = pref.getString("postprocess_segmentation_model_file", "/vendor/etc/camera/deeplabv3_quantized.dlc");
             if (postprocess_segmentation_model_file_value.equals("")) {
                 postprocess_segmentation_model_file.setText(getResources().getString(R.string.postprocess_segmentation_model_file_hint));
+            }
+            String output_layers_value = pref.getString("output_layers", "Conv_139,Conv_140,Conv_141");
+            if (output_layers_value.equals("")) {
+                output_layers.setText(getResources().getString(R.string.output_layers_hint));
+            }
+            String nms_threshold_value = pref.getString("nms_threshold", "0.1");
+            if (nms_threshold_value.equals("")) {
+                nms_threshold.setText(getResources().getString(R.string.nms_threshold_hint));
             }
 
             try {
@@ -496,9 +535,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 if (isInteger(postprocess_yolov5_margins_value)) {
                     set.invoke(SystemProperties, "persist.vendor.ai-director.group.postprocess_yolov5.margins", postprocess_yolov5_margins_value);
                 }
+                if (isFloat(nms_threshold_value)) {
+                    set.invoke(SystemProperties, "persist.vendor.ai-director.group.stabilization.nms_threshold", nms_threshold_value);
+                }
+                set.invoke(SystemProperties, "persist.vendor.ai-director.group.postprocess_yolov5.output_layers", output_layers_value);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.group.muxer.priority", group_muxer_priority_value);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.group.postprocess_segmentation.labels_file", postprocess_segmentation_labels_file_value);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.group.postprocess_segmentation.model_file", postprocess_segmentation_model_file_value);
+
             } catch (IllegalArgumentException iAE) {
                 throw iAE;
             } catch (Exception e) {
@@ -625,6 +669,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!audio_plot.isVisible()) {
                 audio_plot.setVisible(true);
+            }
+            if (!nms_threshold.isVisible()) {
+                nms_threshold.setVisible(true);
             }
 
             autoframing_filter_size.setDefaultValue("120");
@@ -831,6 +878,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
             } else {
                 audio_plot_value_final = "1";
             }
+            String output_layers_value = pref.getString("output_layers", "Conv_139,Conv_140,Conv_141");
+            if (output_layers_value.equals("")) {
+                output_layers.setText(getResources().getString(R.string.output_layers_hint));
+            }
+            String nms_threshold_value = pref.getString("nms_threshold", "0.1");
+            if (nms_threshold_value.equals("")) {
+                nms_threshold.setText(getResources().getString(R.string.nms_threshold_hint));
+            }
 
             try {
                 @SuppressWarnings("rawtypes")
@@ -963,6 +1018,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 if (isInteger(doa_change_delay_value)) {
                     set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.doa_change_delay", doa_change_delay_value);
                 }
+                if (isFloat(nms_threshold_value)) {
+                    set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.stabilization.nms_threshold", nms_threshold_value);
+                }
+                set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.postprocess_yolov5.output_layers", output_layers_value);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.filter.average_fov_filter_enabled", filter_average_fov_filter_enabled_value_final);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.csv_logging_enable", csv_logging_enable_value_final);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.speaker.beamform_log_filename", beamform_log_filename_value);
@@ -992,6 +1051,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!tracking_new_entry_timeout_ms.isVisible()) {
                 tracking_new_entry_timeout_ms.setVisible(true);
+            }
+            if (!roi_release_count.isVisible()) {
+                roi_release_count.setVisible(true);
+            }
+            if (!layout_file.isVisible()) {
+                layout_file.setVisible(true);
+            }
+            if (nms_threshold.isVisible()) {
+                nms_threshold.setVisible(false);
             }
 
             autoframing_filter_size.setDefaultValue("120");
@@ -1045,6 +1113,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
             String tracking_new_entry_timeout_ms_value = pref.getString("tracking_new_entry_timeout_ms", "4000");
             if (tracking_new_entry_timeout_ms_value.equals("")) {
                 tracking_new_entry_timeout_ms.setText(getResources().getString(R.string.tracking_new_entry_timeout_ms_hint));
+            }
+            String roi_release_count_value = pref.getString("roi_release_count", "5");
+            if (roi_release_count_value.equals("")) {
+                roi_release_count.setText(getResources().getString(R.string.roi_release_count_hint));
+            }
+            String layout_file_value = pref.getString("layout_file", "/vendor/etc/camera/grid_layout.json");
+            if (layout_file_value.equals("")) {
+                layout_file.setText(getResources().getString(R.string.layout_file_hint));
+            }
+            String output_layers_value = pref.getString("output_layers", "Conv_139,Conv_140,Conv_141");
+            if (output_layers_value.equals("")) {
+                output_layers.setText(getResources().getString(R.string.output_layers_hint));
             }
 
             try {
@@ -1106,6 +1186,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 if (isInteger(tracking_new_entry_timeout_ms_value)) {
                     set.invoke(SystemProperties, "persist.vendor.ai-director.people.tracking.new_entry_timeout_ms", tracking_new_entry_timeout_ms_value);
                 }
+                if (isInteger(roi_release_count_value)) {
+                    set.invoke(SystemProperties, "persist.vendor.ai-director.grid_manager.roi_release_count", roi_release_count_value);
+                }
+                set.invoke(SystemProperties, "persist.vendor.ai-director.grid_manager.layout_file", layout_file_value);
+                set.invoke(SystemProperties, "persist.vendor.ai-director.people.postprocess_yolov5.output_layers", output_layers_value);
+
             } catch (IllegalArgumentException iAE) {
                 throw iAE;
             } catch (Exception e) {
@@ -1124,6 +1210,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!tracking_new_entry_timeout_ms.isVisible()) {
                 tracking_new_entry_timeout_ms.setVisible(true);
+            }
+            if (!nms_threshold.isVisible()) {
+                nms_threshold.setVisible(true);
             }
 
             autoframing_filter_size.setDefaultValue("240");
@@ -1173,6 +1262,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
             String tracking_new_entry_timeout_ms_value = pref.getString("tracking_new_entry_timeout_ms", "4000");
             if (tracking_new_entry_timeout_ms_value.equals("")) {
                 tracking_new_entry_timeout_ms.setText(getResources().getString(R.string.tracking_new_entry_timeout_ms_hint));
+            }
+            String output_layers_value = pref.getString("output_layers", "Conv_139,Conv_140,Conv_141");
+            if (output_layers_value.equals("")) {
+                output_layers.setText(getResources().getString(R.string.output_layers_hint));
+            }
+            String nms_threshold_value = pref.getString("nms_threshold", "0.1");
+            if (nms_threshold_value.equals("")) {
+                nms_threshold.setText(getResources().getString(R.string.nms_threshold_hint));
             }
             try {
                 @SuppressWarnings("rawtypes")
@@ -1230,6 +1327,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 if (isInteger(tracking_new_entry_timeout_ms_value)) {
                     set.invoke(SystemProperties, "persist.vendor.ai-director.presenter.tracking.new_entry_timeout_ms", tracking_new_entry_timeout_ms_value);
                 }
+                if (isFloat(nms_threshold_value)) {
+                    set.invoke(SystemProperties, "persist.vendor.ai-director.presenter.stabilization.nms_threshold", nms_threshold_value);
+                }
+                set.invoke(SystemProperties, "persist.vendor.ai-director.presenter.postprocess_yolov5.output_layers", output_layers_value);
             } catch (IllegalArgumentException iAE) {
                 throw iAE;
             } catch (Exception e) {
