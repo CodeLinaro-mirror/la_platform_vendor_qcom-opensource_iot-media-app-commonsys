@@ -1,3 +1,4 @@
+ifneq ($(TARGET_1G_DDR_RAM), true)
 # QMedia Android Application Package
 PRODUCT_PACKAGES += QMedia
 
@@ -9,3 +10,4 @@ PRODUCT_PACKAGES += Camera2Video
 
 # UMDAdaptor app
 PRODUCT_PACKAGES += UMDAdaptor
+endif
