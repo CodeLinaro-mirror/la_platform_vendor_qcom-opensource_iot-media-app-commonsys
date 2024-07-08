@@ -322,6 +322,13 @@
             android:title="MS Teams Certification" />
     </PreferenceCategory>
 
+    <PreferenceCategory android:title="Audio Settings">
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="audio_enable"
+            android:title="Audio Session" />
+    </PreferenceCategory>
+
     <PreferenceCategory android:title="Reset">
         <androidx.preference.Preference
             android:key="reset"

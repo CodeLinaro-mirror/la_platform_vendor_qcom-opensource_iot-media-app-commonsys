@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -97,10 +97,15 @@ class CalibrationData {
     protected Boolean isCalibrationEnabled;
 }
 
+class AudioSettingData {
+    protected Boolean isAudioEnabled;
+}
+
 public class SettingsUtil {
 
     private static final String TAG = "SettingsUtil";
     public CalibrationData mCalibrationData;
+    public AudioSettingData mAudioSettingData;
     public ArrayList<SettingsData> data;
     private static final CameraCharacteristics.Key<String> CAMERA_TYPE_CHARACTERISTIC_KEY =
             new CameraCharacteristics.Key<>("camera.type", String.class);
@@ -109,6 +114,7 @@ public class SettingsUtil {
         Log.v(TAG, "SettingsUtil enter");
         data = new ArrayList<>();
         mCalibrationData = new CalibrationData();
+        mAudioSettingData = new AudioSettingData();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
@@ -252,6 +258,7 @@ public class SettingsUtil {
         data.add(hdmi_3_setting);
 
         mCalibrationData.isCalibrationEnabled = pref.getBoolean("msteams_cert_calibration", false);
+        mAudioSettingData.isAudioEnabled = pref.getBoolean("audio_enable", false);
 
         Log.v(TAG, "SettingsUtil exit");
     }
@@ -276,6 +283,7 @@ public class SettingsUtil {
             Log.d(TAG, "#####################################");
         }
         Log.d(TAG, "Is Calibration Enabled : " + mCalibrationData.isCalibrationEnabled);
+        Log.d(TAG, "Is Audio Enabled : " + mAudioSettingData.isAudioEnabled);
     }
 
     public String getHDMISource(int index) {
@@ -340,5 +348,9 @@ public class SettingsUtil {
 
     public Boolean getIsCalibrationEnabled() {
         return mCalibrationData.isCalibrationEnabled;
+    }
+
+    public Boolean getIsAudioEnabled() {
+        return mAudioSettingData.isAudioEnabled;
     }
 }
