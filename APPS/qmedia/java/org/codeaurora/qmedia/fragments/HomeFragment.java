@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -109,6 +109,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 public class HomeFragment extends Fragment implements CameraDisconnectedListener {
 
@@ -154,7 +155,6 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     //private SnpeBase mSnpeBase = null;
     private MediaRecorder mRecorder;
     private Rect mPrimaryDisplaySize = null;
-    private final Object lock = new Object();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -623,39 +623,36 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                                     resolution[0].getWidth() + "x" + resolution[0].getHeight());
                             int width = resolution[0].getWidth();
                             int height = resolution[0].getHeight();
+                            CountDownLatch latch = new CountDownLatch(1);
 
                             requireActivity().runOnUiThread(() -> {
-                                synchronized (lock) {
                                     mHDMIinSurfaceHolder.setFixedSize(width, height);
-                                    lock.notify();
-                                }
+                                    latch.countDown();
                             });
 
-                            synchronized (lock) {
-                                try {
-                                    lock.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                            try {
+                                latch.await();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
 
-                                mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-                                mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
-                                // CSI - DSI Tunneling
-                                if (mSettingData.getIsTunnelingEnabled(0)) {
-                                    mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
-                                }
-                                if (mSettingData.getIsHDMIinVideoEnabled(0)) {
-                                    // Create Encoder instance if Video is enabled
-                                    mMediaCodecRecorder =
-                                            new MediaCodecRecorder(mContext, resolution[0].getWidth(),
-                                                    resolution[0].getHeight(),
-                                                    mSettingData.getIsHDMIinAudioEnabled(0));
-                                    mCameraBase.addRecorderStream(
-                                            mMediaCodecRecorder.getRecorderSurface());
-                                }
-                                if (mSettingData.getIsHDMIinAudioEnabled(0)) {
-                                    mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
-                                }
+                            mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
+                            mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
+                            // CSI - DSI Tunneling
+                            if (mSettingData.getIsTunnelingEnabled(0)) {
+                                mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
+                            }
+                            if (mSettingData.getIsHDMIinVideoEnabled(0)) {
+                                // Create Encoder instance if Video is enabled
+                                mMediaCodecRecorder =
+                                        new MediaCodecRecorder(mContext, resolution[0].getWidth(),
+                                                resolution[0].getHeight(),
+                                                mSettingData.getIsHDMIinAudioEnabled(0));
+                                mCameraBase.addRecorderStream(
+                                        mMediaCodecRecorder.getRecorderSurface());
+                            }
+                            if (mSettingData.getIsHDMIinAudioEnabled(0)) {
+                                mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
