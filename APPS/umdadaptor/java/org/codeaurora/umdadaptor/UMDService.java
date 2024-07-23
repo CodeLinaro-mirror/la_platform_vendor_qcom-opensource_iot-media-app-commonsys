@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2023-2024 Qualcomm Innovation Center, Inc. All rights reserved.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -40,8 +40,8 @@ public class UMDService extends Service {
     private IUMDAdaptorCallback.Stub mHalCallback = new IUMDAdaptorCallback.Stub() {
         @Override
         public void onAudioUevent(int status) {
-            mEventQueue.add(status);
             try {
+                mEventQueue.put(status);
                 mConditionQueue.put(true);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -106,9 +106,7 @@ public class UMDService extends Service {
                     while (mThreadActive) {
                         try {
                             mConditionQueue.take();
-                            if (mEventQueue.size() > 0) {
-                                HandleUEvent(mEventQueue.remove());
-                            }
+                            HandleUEvent(mEventQueue.take());
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
