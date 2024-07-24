@@ -342,6 +342,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
                         }
                         if (mCameraRunningStateSelected && !mCameraRunning.getAndSet(true)) {
                             Log.d(TAG, "onCameraAvailable mCameraRunningStateSelected so will start");
+                            mCameraBase.handleMLInference((byte) (
+                                    mData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                             mCameraBase.startCamera(mData.getCameraID(mPresentationIndex));
                             if (mMediaCodecRecorder != null) {
                                 mMediaCodecRecorder.start(0);
@@ -438,6 +440,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
             }
             if (!mCameraRunning.getAndSet(true)) {
                 if (mCameraBase != null) { // mCameraRunning won't matter if no camera is there
+                mCameraBase.handleMLInference((byte) (
+                        mData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                     mCameraBase.startCamera(mData.getCameraID(mPresentationIndex));
                 }
                 if (mData.getHDMISource(mPresentationIndex).equals("Camera") &&

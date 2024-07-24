@@ -525,6 +525,8 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                 if (mPrimaryDisplayStarted) {
                     mCameraRunningStateSelected = true;
                     if (!mCameraRunning.getAndSet(true)) {
+                        mCameraBase.handleMLInference((byte) (
+                                mSettingData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                         mCameraBase.startCamera(mSettingData.getCameraID(0));
                         if (mMediaCodecRecorder != null) {
                             Log.v(TAG, "Recorder start");
@@ -660,6 +662,8 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                         if (mCameraRunningStateSelected && !mCameraRunning.getAndSet(true)) {
                             Log.d(TAG, "onCameraAvailable " +
                                     "mCameraRunningStateSelected and !mCameraRunning so will start");
+                            mCameraBase.handleMLInference((byte) (
+                                    mSettingData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                             mCameraBase.startCamera(mSettingData.getCameraID(0));
                             if (mMediaCodecRecorder != null) {
                                 mMediaCodecRecorder.start(0);
