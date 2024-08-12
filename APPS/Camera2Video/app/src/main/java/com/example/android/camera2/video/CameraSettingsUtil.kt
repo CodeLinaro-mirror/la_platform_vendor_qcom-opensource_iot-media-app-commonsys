@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -146,8 +146,8 @@ object CameraSettingsUtil {
                 CameraParameters(
                         sharedPref.getBoolean("eis_enable", false),
                         sharedPref.getBoolean("ldc_enable", false),
-                        sharedPref.getBoolean("shdr_enable", false),
                         sharedPref.getString("exposure_value", null)!!.toInt(),
+                        sharedPref.getString("shdr_value", null)!!.toInt(),
                         sharedPref.getBoolean("zsl_enable", true)
                 ),
                 sharedPref.getString("camera_id", null)!!,

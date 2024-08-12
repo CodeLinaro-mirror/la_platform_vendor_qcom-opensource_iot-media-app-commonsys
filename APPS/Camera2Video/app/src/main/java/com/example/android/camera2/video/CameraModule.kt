@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -62,8 +62,8 @@ data class StreamInfo(
 
 data class CameraParameters(val eis_enable: Boolean = false,
                             val ldc_enable: Boolean = false,
-                            val shdr_enable: Boolean = false,
                             val exposure_value: Int = 0,
+                            val shdr_value: Int = 0,
                             val hal_zsl_enable: Boolean = true)
 
 data class CameraSettings(var previewInfo: StreamInfo,
@@ -98,7 +98,6 @@ interface CameraModule {
     fun setLDCEnable(value: Boolean)
     fun setTNREnable(value: Byte)
     fun setNRMode(value: Int)
-    fun setSHDREnable(value: Boolean)
     fun setAELock(value: Boolean)
     fun setAWBLock(value: Boolean)
     fun setAntiBandingMode(value: Int)
@@ -118,4 +117,5 @@ interface CameraModule {
     fun setSharpnessLevel(value: Int)
     fun setExposureValue(value: Int)
     fun setZSL(value: Boolean)
+    fun setSHDRValue(value: Int)
 }
