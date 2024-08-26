@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -137,8 +137,6 @@ object VendorTagUtil {
             Byte::class.java)
     private val LDCEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.LDCenable",
             Byte::class.java)
-    private val SHDREnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.shdr.enable",
-            Byte::class.java)
     private val CdsModeKey = CaptureRequest.Key("org.codeaurora.qcamera3.CDS.cds_mode",
             Int::class.java)
     private val JpegCropEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.jpeg_encode_crop.enable",
@@ -166,6 +164,7 @@ object VendorTagUtil {
     private val HDRVideoMode = CaptureRequest.Key("org.quic.camera2.streamconfigs.HDRVideoMode", Byte::class.java)
     private val SATURATION_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.saturation.use_saturation", Int::class.java)
     private val SHARPNESS_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.sharpness.strength", Int::class.java)
+    private val SHDR_TYPE_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sessionParameters.SWSHDRType", Int::class.java)
 
     private const val MANUAL_WB_DISABLE_MODE = 0
     private const val MANUAL_WB_CCT_MODE = 1
@@ -273,9 +272,19 @@ object VendorTagUtil {
         return isSupported(builder, SHARPNESS_LEVEL_KEY)
     }
 
+    private fun isSHDRSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, SHDR_TYPE_VALUE)
+    }
+
     fun setSharpnessLevel(builder: CaptureRequest.Builder, value: Int) {
         if (isSharpnessLevelSupported(builder)) {
             builder.set(SHARPNESS_LEVEL_KEY, value)
+        }
+    }
+
+    fun setSHDRValue(builder: CaptureRequest.Builder, value: Int) {
+        if (isSHDRSupported(builder)) {
+            builder.set(SHDR_TYPE_VALUE, value)
         }
     }
 
@@ -364,16 +373,6 @@ object VendorTagUtil {
         } catch (exception: CameraAccessException) {
             exception.printStackTrace()
             false
-        }
-    }
-
-    private fun isSHDREnable(builder: CaptureRequest.Builder) : Boolean {
-        return isSupported(builder, SHDREnableKey)
-    }
-
-    fun setSHDREnable(builder: CaptureRequest.Builder, value: Byte) {
-        if (isSHDREnable(builder)) {
-            builder.set(SHDREnableKey, value)
         }
     }
 
