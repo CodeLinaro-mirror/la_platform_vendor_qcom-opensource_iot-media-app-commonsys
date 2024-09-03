@@ -133,8 +133,6 @@ object VendorTagUtil {
 
     private val TNREnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.temporal_denoise.enable",
             Byte::class.java)
-    private val EISEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.EISenable",
-            Byte::class.java)
     private val LDCEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.LDCenable",
             Byte::class.java)
     private val CdsModeKey = CaptureRequest.Key("org.codeaurora.qcamera3.CDS.cds_mode",
@@ -393,16 +391,6 @@ object VendorTagUtil {
     fun setTNREnable(builder: CaptureRequest.Builder, value: Byte) {
         if (isTNREnable(builder)) {
             builder.set(TNREnableKey, value)
-        }
-    }
-
-    private fun isEISEnable(builder: CaptureRequest.Builder) : Boolean {
-        return isSupported(builder, EISEnableKey)
-    }
-
-    fun setEISEnable(builder: CaptureRequest.Builder, value: Byte) {
-        if (isEISEnable(builder)) {
-            builder.set(EISEnableKey, value)
         }
     }
 

@@ -378,7 +378,7 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
         Log.i(TAG, "initializeCamera")
         cameraBase.openCamera(settings.cameraId)
 
-        cameraBase.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase.setEISOpmodeValue(settings.cameraParams.eis_enable)
         cameraBase.setLDCEnable(settings.cameraParams.ldc_enable)
         cameraBase.setSHDRValue(settings.cameraParams.shdr_value)
         cameraBase.setFramerate(settings.previewInfo.fps)

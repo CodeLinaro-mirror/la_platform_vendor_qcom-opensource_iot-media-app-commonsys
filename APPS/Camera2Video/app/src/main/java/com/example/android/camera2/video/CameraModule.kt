@@ -60,10 +60,10 @@ data class StreamInfo(
         val overlayType: String? = ""
 )
 
-data class CameraParameters(val eis_enable: Boolean = false,
-                            val ldc_enable: Boolean = false,
+data class CameraParameters(val ldc_enable: Boolean = false,
                             val exposure_value: Int = 0,
                             val shdr_value: Int = 0,
+                            val eis_enable: Int = 0,
                             val hal_zsl_enable: Boolean = true)
 
 data class CameraSettings(var previewInfo: StreamInfo,
@@ -94,7 +94,7 @@ interface CameraModule {
     fun takeSnapshot(value: Int?): CombinedCaptureResult
     fun takeMJPEG(start: Boolean)
     fun close()
-    fun setEISEnable(value: Boolean)
+    fun setEISOpmodeValue(value: Int)
     fun setLDCEnable(value: Boolean)
     fun setTNREnable(value: Byte)
     fun setNRMode(value: Int)
