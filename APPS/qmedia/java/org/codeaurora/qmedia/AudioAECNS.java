@@ -1,0 +1,289 @@
+/*
+# Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted (subject to the limitations in the
+# disclaimer below) provided that the following conditions are met:
+#
+#     * Redistributions of source code must retain the above copyright
+#       notice, this list of conditions and the following disclaimer.
+#
+#     * Redistributions in binary form must reproduce the above
+#       copyright notice, this list of conditions and the following
+#       disclaimer in the documentation and/or other materials provided
+#       with the distribution.
+#
+#     * Neither the name of Qualcomm Innovation Center, Inc. nor the names of its
+#       contributors may be used to endorse or promote products derived
+#       from this software without specific prior written permission.
+#
+# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
+# GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
+# HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
+# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
+# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
+# GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
+# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
+# IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+package org.codeaurora.qmedia;
+
+import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.AudioDeviceInfo;
+import android.media.AudioFormat;
+import android.media.AudioManager;
+import android.media.AudioRecord;
+import android.media.AudioTrack;
+import android.media.MediaRecorder;
+import android.util.Log;
+import android.media.audiofx.AcousticEchoCanceler;
+import android.media.audiofx.NoiseSuppressor;
+
+import java.util.Arrays;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+public class AudioAECNS {
+
+    private static final String TAG = "AudioAECNS";
+    private static final int DEFAULT_SAMPLE_RATE = 48000;
+    private static final int AUDIO_QUEUE_SIZE = 8;
+    private int mAudioBufferBytes;
+    private int mAudioSampleRate;
+    private int mRecorderChannels;
+    private int mRecorderAudioEncoding;
+    private AudioRecord mAudioRecorder = null;
+    private AudioTrack mAudioTrack = null;
+    AudioManager mAudioManager;
+    AudioDeviceInfo[] mAudioDeviceInfos;
+    AudioDeviceInfo mAudioDevice = null;
+    private Thread mRecordThread = null;
+    private Thread mPlaybackThread = null;
+    private AcousticEchoCanceler mAEC = null;
+    private NoiseSuppressor mNS = null;
+    ArrayBlockingQueue<byte[]> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE, true);
+    AtomicBoolean isAudioRecordThreadRunning = new AtomicBoolean(false);
+    AtomicBoolean isAudioPlaybackThreadRunning = new AtomicBoolean(false);
+    boolean isAECAvailable = AcousticEchoCanceler.isAvailable();
+    boolean isNSAvailable = NoiseSuppressor.isAvailable();
+    Semaphore mRecordPlaybackSemaphore = new Semaphore(2);
+
+
+    public AudioAECNS(Context context) {
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+    }
+
+    public void audioSessionStart() {
+        Log.v(TAG, "audioSessionStart enter");
+
+        mAudioDeviceInfos = mAudioManager.getDevices(AudioManager.GET_DEVICES_INPUTS);
+        for (AudioDeviceInfo d : mAudioDeviceInfos) {
+            if (d.getType() == AudioDeviceInfo.TYPE_BUILTIN_MIC)
+                mAudioDevice = d;
+        }
+        if (mAudioDevice != null) {
+            int[] sampleRates = mAudioDevice.getSampleRates();
+            if (sampleRates.length == 0)
+                mAudioSampleRate = DEFAULT_SAMPLE_RATE;
+            else
+                mAudioSampleRate = Arrays.stream(sampleRates).max().getAsInt();
+
+            mRecorderChannels = AudioFormat.CHANNEL_IN_STEREO;
+            mRecorderAudioEncoding = AudioFormat.ENCODING_PCM_16BIT;
+
+            mAudioBufferBytes = AudioRecord.getMinBufferSize(mAudioSampleRate,
+                    mRecorderChannels,
+                    mRecorderAudioEncoding);
+
+            Log.d(TAG, "Init MIC audio");
+            mAudioRecorder = new AudioRecord(MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                    mAudioSampleRate, mRecorderChannels,
+                    mRecorderAudioEncoding, mAudioBufferBytes);
+
+            audioAECEnable();
+            audioNSEnable();
+
+            mAudioRecorder.setPreferredDevice(mAudioDevice);
+            mAudioRecorder.startRecording();
+
+            mAudioTrack = new AudioTrack.Builder()
+                    .setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_VOICE_COMMUNICATION)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build())
+                    .setAudioFormat(new AudioFormat.Builder()
+                            .setEncoding(mRecorderAudioEncoding)
+                            .setSampleRate(mAudioSampleRate)
+                            .setChannelMask(mRecorderChannels)
+                            .build())
+                    .setBufferSizeInBytes(mAudioBufferBytes)
+                    .build();
+            mAudioTrack.play();
+
+            try {
+                mRecordPlaybackSemaphore.acquire(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            mRecordThread = new Thread(new Runnable() {
+                public void run() {
+                    Log.v(TAG, "mRecordThread enter");
+                    Log.v(TAG, "Audio Record thread started.");
+                    isAudioRecordThreadRunning.set(true);
+                    mRecordPlaybackSemaphore.release();
+                    byte[] bData = new byte[mAudioBufferBytes];
+                    while (isAudioRecordThreadRunning.get()) {
+                        mAudioRecorder.read(bData, 0, mAudioBufferBytes, AudioRecord.READ_BLOCKING);
+                        try {
+                            mAudioQueue.put(bData);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    Log.v(TAG, "mRecordThread exit");
+                }
+            }, "Audio Record Thread");
+            mRecordThread.start();
+            mPlaybackThread = new Thread(new Runnable() {
+                public void run() {
+                    Log.v(TAG, "mPlaybackThread enter");
+                    Log.v(TAG, "Audio Playback thread started.");
+                    isAudioPlaybackThreadRunning.set(true);
+                    mRecordPlaybackSemaphore.release();
+                    while (isAudioPlaybackThreadRunning.get()) {
+                        byte[] bData = new byte[0];
+                        try {
+                            bData = mAudioQueue.take();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            continue;
+                        }
+                        mAudioTrack.write(bData, 0, mAudioBufferBytes, AudioTrack.WRITE_NON_BLOCKING);
+                    }
+                    Log.v(TAG, "mPlaybackThread exit");
+                }
+            }, "Audio Playback Thread");
+            mPlaybackThread.start();
+        }
+        Log.v(TAG, "audioSessionStart exit");
+    }
+
+    public void audioSessionStop() {
+        Log.v(TAG, "audioSessionStop enter");
+        if (mAudioDevice != null) {
+            try {
+                mAudioDevice = null;
+
+                mRecordPlaybackSemaphore.acquire(2);
+                mRecordPlaybackSemaphore.release(2);
+
+                isAudioRecordThreadRunning.set(false);
+                isAudioPlaybackThreadRunning.set(false);
+
+                mRecordThread.join();
+                mRecordThread = null;
+
+                mPlaybackThread.join();
+                mPlaybackThread = null;
+
+                mAudioQueue.clear();
+
+                if (mAudioRecorder != null) {
+                    mAudioRecorder.stop();
+                    mAudioRecorder.release();
+                    mAudioRecorder = null;
+                }
+
+                if (mAudioTrack != null) {
+                    mAudioTrack.stop();
+                    mAudioTrack.release();
+                    mAudioTrack = null;
+                }
+
+                if (mAEC != null) {
+                    mAEC.release();
+                    mAEC = null;
+                }
+
+                if (mNS != null) {
+                    mNS.release();
+                    mNS = null;
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Log.v(TAG, "audioSessionStop exit");
+    }
+
+    public void audioAECEnable() {
+        Log.v(TAG, "audioAECEnable enter");
+
+        if (isAECAvailable) {
+            try {
+                mAEC = AcousticEchoCanceler.create(mAudioRecorder.getAudioSessionId());
+                mAEC.setEnabled(true);
+            } catch (IllegalStateException e) {
+                Log.d(TAG, "AEC enable failed");
+            }
+        } else {
+            Log.d(TAG, "AEC isn't available on the device");
+        }
+
+        Log.v(TAG, "audioAECEnable exit");
+    }
+
+    public void audioAECDisable() {
+        Log.v(TAG, "audioAECDisable enter");
+        try {
+            if (mAEC != null) {
+                mAEC.setEnabled(false);
+                mAEC.release();
+                mAEC = null;
+            }
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "AEC disable failed");
+        }
+        Log.v(TAG, "audioAECDisable exit");
+    }
+
+    public void audioNSEnable() {
+        Log.v(TAG, "audioNSEnable enter");
+
+        if (isNSAvailable) {
+            try {
+                mNS = NoiseSuppressor.create(mAudioRecorder.getAudioSessionId());
+                mNS.setEnabled(true);
+            } catch (IllegalStateException e) {
+                Log.d(TAG, "NS enable failed");
+            }
+        } else {
+            Log.d(TAG, "NS isn't available on the device");
+        }
+        Log.v(TAG, "audioNSEnable exit");
+    }
+
+    public void audioNSDisable() {
+        Log.v(TAG, "audioNSDisable enter");
+        try {
+            if (mNS != null) {
+                mNS.setEnabled(false);
+                mNS.release();
+                mNS = null;
+            }
+        } catch (IllegalStateException e) {
+            Log.d(TAG, "NS disable failed");
+        }
+        Log.v(TAG, "audioNsDisable exit");
+    }
+}

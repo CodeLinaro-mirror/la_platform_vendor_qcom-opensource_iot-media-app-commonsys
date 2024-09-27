@@ -27,7 +27,7 @@
 ~ IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -320,6 +320,20 @@
             android:defaultValue="true"
             android:key="msteams_cert_calibration"
             android:title="MS Teams Certification" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Audio Settings">
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="audio_enable"
+            android:title="Audio Session" />
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Camera Settings">
+        <androidx.preference.SwitchPreference
+            android:defaultValue="false"
+            android:key="ml_inference_enable"
+            android:title="ML Inference"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Reset">

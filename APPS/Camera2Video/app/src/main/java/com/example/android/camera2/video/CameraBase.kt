@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020 - 2022, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -110,8 +110,8 @@ class CameraBase(val context: Context): CameraModule {
     private var streamConfigOpMode: Int = 0x00
     private var isEISEnabled: Boolean = false
     private var isLDCEnabled: Boolean = false
-    private var isSHDREnabled: Boolean = false
     private var exposureValue = 0
+    private var shdrValue = 0
     private var enableZSL = true
 
     private lateinit var imageReader: ImageReader
@@ -225,11 +225,15 @@ class CameraBase(val context: Context): CameraModule {
 
         // Set Opmode
         if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
-        if (isSHDREnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_ZZHDR_MODE
         if (isLDCEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_LDC_MODE
         if (previewFps == 120) streamConfigOpMode = streamConfigOpMode or HIGH_SPEED_SESSION
 
         Log.d(TAG, "Operation Mode: $streamConfigOpMode")
+
+        VendorTagUtil.setSHDRValue(previewRequest, shdrValue)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setSHDRValue(captureRequest, shdrValue)
+        }
 
         val config = SessionConfiguration(
                 streamConfigOpMode, outConfigurations, HandlerExecutor(cameraHandler),
@@ -646,6 +650,12 @@ class CameraBase(val context: Context): CameraModule {
         if (::captureRequest.isInitialized) {
             captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureValue)
         }
+
+    }
+
+    override fun setSHDRValue(value: Int) {
+        Log.d(TAG, "SHDR Value: $value")
+        shdrValue = value
     }
 
     override fun setExposureValue(value: Int) {
@@ -932,10 +942,6 @@ class CameraBase(val context: Context): CameraModule {
             captureRequest.set(CaptureRequest.NOISE_REDUCTION_MODE, value)
         }
         updateRepeatingRequest()
-    }
-
-    override fun setSHDREnable(value: Boolean) {
-        isSHDREnabled = value
     }
 
     override fun setAELock(value: Boolean) {

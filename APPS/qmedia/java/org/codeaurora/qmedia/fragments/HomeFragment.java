@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -103,11 +103,13 @@ import org.codeaurora.qmedia.PresentationBase;
 import org.codeaurora.qmedia.R;
 import org.codeaurora.qmedia.SettingsUtil;
 import org.codeaurora.qmedia.opengles.VideoComposer;
+import org.codeaurora.qmedia.AudioAECNS;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 public class HomeFragment extends Fragment implements CameraDisconnectedListener {
 
@@ -121,16 +123,24 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     private SettingsUtil mSettingData;
     private ArrayList<String> mFileNames;
     private Boolean mPrimaryDisplayStarted = false;
+    private Boolean mAudioSessionStarted = false;
+    private Boolean mAECStarted = true;
+    private Boolean mNSStarted = true;
+    private Boolean mRecorderRunning = false;
     private int mSurfaceCount = 0;
 
     private DisplayManager mDisplayManager;
     private Button mPrimaryDisplayButton;
+    private Button mPrimaryDisplayAudioButton;
+    private Button mPrimaryDisplayAECButton;
+    private Button mPrimaryDisplayNSButton;
     private CameraBase mCameraBase = null;
     private MediaCodecRecorder mMediaCodecRecorder = null;
     private Boolean mRecorderStarted = false;
     private SurfaceHolder mHDMIinSurfaceHolder;
 
     private HDMIinAudioPlayback mHDMIinAudioPlayback = null;
+    private AudioAECNS mAudioAECNS = null;
     private static final CameraCharacteristics.Key<String> CAMERA_TYPE_CHARACTERISTIC_KEY =
             new CameraCharacteristics.Key<>("camera.type", String.class);
     private Boolean mHDMIinAvailable = false;
@@ -145,7 +155,6 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     //private SnpeBase mSnpeBase = null;
     private MediaRecorder mRecorder;
     private Rect mPrimaryDisplaySize = null;
-    private final Object lock = new Object();
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -190,6 +199,8 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                 return inflater.inflate(R.layout.tunnel_primary_display, container, false);
         } else if (mSettingData.getHDMISource(0).equals("SNPE")) {
             return inflater.inflate(R.layout.primary_display_ml, container, false);
+        } else if (mSettingData.getIsAudioEnabled()) {
+            return inflater.inflate(R.layout.primary_display_audio, container, false);
         }
 
         // Load Default layout for all other scenario e.g. HDMI In and Concurrent HDMI
@@ -211,6 +222,21 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
             }
         } else if (mSettingData.getHDMISource(0).equals("SNPE")) {
             handleSnpe(view);
+        } else if (mSettingData.getIsAudioEnabled()) {
+            Toast.makeText(getContext(), "Audio Session enabled",
+                        Toast.LENGTH_SHORT).show();
+
+            mAudioAECNS = new AudioAECNS(requireContext());
+
+            mPrimaryDisplayAudioButton = view.findViewById(R.id.primary_display_audio_button);
+            mPrimaryDisplayAudioButton.setOnClickListener((View v) -> audioDisplayToggle());
+
+            mPrimaryDisplayAECButton = view.findViewById(R.id.primary_display_aec_button);
+            mPrimaryDisplayAECButton.setOnClickListener((View v) -> audioAECToggle());
+
+            mPrimaryDisplayNSButton = view.findViewById(R.id.primary_display_ns_button);
+            mPrimaryDisplayNSButton.setOnClickListener((View v) -> audioNSToggle());
+
         } else {
             if (mSettingData.getHDMISource(1).equals("None") &&
                     mSettingData.getHDMISource(2).equals("None")) {
@@ -228,29 +254,10 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     public void onResume() {
         Log.v(TAG, "Enter onResume");
         super.onResume();
-
-        mRecorder = new MediaRecorder();
-        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        if (Build.VERSION.SDK_INT >= 33) {
-            File temp = getActivity().getApplicationContext().getFilesDir();
-            File sds = new File(temp, "tmp_media.3gpp");
-            try {
-                sds.createNewFile();
-            } catch (IOException e) {
-                Log.e("TAG", "Failed to create new File");
-            }
-            mRecorder.setOutputFile(sds);
-        } else {
-            mRecorder.setOutputFile("/dev/null");
+        if(!mRecorderRunning) {
+            prepareStartMediaRecorder();
+            mRecorderRunning = true;
         }
-        try {
-          mRecorder.prepare();
-        } catch (IOException e) {
-          Log.e("TAG", "failed to prepare MediaRecorder");
-        }
-        mRecorder.start();
 
         Display[] displays = mDisplayManager.getDisplays(
                 DisplayManager.DISPLAY_CATEGORY_PRESENTATION);
@@ -305,8 +312,12 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
     public void onPause() {
         Log.v(TAG, "Enter OnPause");
         super.onPause();
-        mRecorder.stop();
-        mRecorder.release();
+
+        if(mRecorderRunning) {
+            mRecorder.stop();
+            mRecorder.release();
+            mRecorderRunning = false;
+        }
 
         if (mPrimaryDisplayStarted) {
             mCameraRunningStateSelected = false;
@@ -346,6 +357,16 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
             //    mSnpeBase.stopInference();
             //}
         }
+
+        if (mAudioSessionStarted) {
+            if (mAudioAECNS != null) {
+                mAudioAECNS.audioSessionStop();
+                mAudioAECNS = null;
+            }
+            mAudioSessionStarted = false;
+            mPrimaryDisplayAudioButton.setText("Start");
+        }
+
         for (PresentationBase it : mPresentationBaseList) {
             it.dismiss();
         }
@@ -353,6 +374,96 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
         mPrimaryDisplaySize = null;
         Log.v(TAG, "Exit OnPause");
     }
+
+    private void audioDisplayToggle() {
+        Log.v(TAG, "audioDisplayToggle enter");
+
+        if (!mAudioSessionStarted) {
+            if(mRecorderRunning) {
+                mRecorder.stop();
+                mRecorder.release();
+                mRecorderRunning = false;
+            }
+            mAudioAECNS.audioSessionStart();
+            mPrimaryDisplayAECButton.setVisibility(View.VISIBLE);
+            mPrimaryDisplayNSButton.setVisibility(View.VISIBLE);
+            mPrimaryDisplayAudioButton.setText("Stop");
+        } else {
+            mAudioAECNS.audioSessionStop();
+            if(!mRecorderRunning) {
+                prepareStartMediaRecorder();
+                mRecorderRunning = true;
+            }
+            mPrimaryDisplayAECButton.setVisibility(View.GONE);
+            mPrimaryDisplayAECButton.setText("Disable AEC");
+            mPrimaryDisplayNSButton.setVisibility(View.GONE);
+            mPrimaryDisplayNSButton.setText("Disable NS");
+            mPrimaryDisplayAudioButton.setText("Start");
+        }
+        mAudioSessionStarted = !mAudioSessionStarted;
+
+        Log.v(TAG, "audioDisplayToggle exit");
+    }
+
+    private void audioAECToggle() {
+        Log.v(TAG, "audioAECToggle enter");
+
+        if (mAECStarted) {
+            mAudioAECNS.audioAECDisable();
+            mPrimaryDisplayAECButton.setText("Enable AEC");
+        } else {
+            mAudioAECNS.audioAECEnable();
+            mPrimaryDisplayAECButton.setText("Disable AEC");
+        }
+        mAECStarted = !mAECStarted;
+
+        Log.v(TAG, "audioAECToggle exit");
+    }
+
+    private void audioNSToggle() {
+        Log.v(TAG, "audioNSToggle enter");
+
+        if (mNSStarted) {
+            mAudioAECNS.audioNSDisable();
+            mPrimaryDisplayNSButton.setText("Enable NS");
+        } else {
+            mAudioAECNS.audioNSEnable();
+            mPrimaryDisplayNSButton.setText("Disable NS");
+        }
+        mNSStarted = !mNSStarted;
+
+        Log.v(TAG, "audioNSToggle exit");
+    }
+
+    private void prepareStartMediaRecorder() {
+        Log.v(TAG, "Enter prepareStartMediaRecorder");
+
+        mRecorder = new MediaRecorder();
+        mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        if (Build.VERSION.SDK_INT >= 33) {
+            File temp = getActivity().getApplicationContext().getFilesDir();
+            File sds = new File(temp, "tmp_media.3gpp");
+            try {
+                sds.createNewFile();
+            } catch (IOException e) {
+                Log.e("TAG", "Failed to create new File");
+            }
+            mRecorder.setOutputFile(sds);
+        } else {
+            mRecorder.setOutputFile("/dev/null");
+        }
+        try {
+          mRecorder.prepare();
+        } catch (IOException e) {
+          Log.e("TAG", "failed to prepare MediaRecorder");
+        }
+        mRecorder.start();
+
+        Log.v(TAG, "Exit prepareStartMediaRecorder");
+    }
+
 
     private void processDecodeAndSecondaryDisplaysToggle() {
         Log.v(TAG, "processDecodeAndSecondaryDisplaysToggle enter");
@@ -414,6 +525,8 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                 if (mPrimaryDisplayStarted) {
                     mCameraRunningStateSelected = true;
                     if (!mCameraRunning.getAndSet(true)) {
+                        mCameraBase.handleMLInference((byte) (
+                                mSettingData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                         mCameraBase.startCamera(mSettingData.getCameraID(0));
                         if (mMediaCodecRecorder != null) {
                             Log.v(TAG, "Recorder start");
@@ -512,39 +625,36 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                                     resolution[0].getWidth() + "x" + resolution[0].getHeight());
                             int width = resolution[0].getWidth();
                             int height = resolution[0].getHeight();
+                            CountDownLatch latch = new CountDownLatch(1);
 
                             requireActivity().runOnUiThread(() -> {
-                                synchronized (lock) {
                                     mHDMIinSurfaceHolder.setFixedSize(width, height);
-                                    lock.notify();
-                                }
+                                    latch.countDown();
                             });
 
-                            synchronized (lock) {
-                                try {
-                                    lock.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
+                            try {
+                                latch.await();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
 
-                                mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-                                mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
-                                // CSI - DSI Tunneling
-                                if (mSettingData.getIsTunnelingEnabled(0)) {
-                                    mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
-                                }
-                                if (mSettingData.getIsHDMIinVideoEnabled(0)) {
-                                    // Create Encoder instance if Video is enabled
-                                    mMediaCodecRecorder =
-                                            new MediaCodecRecorder(mContext, resolution[0].getWidth(),
-                                                    resolution[0].getHeight(),
-                                                    mSettingData.getIsHDMIinAudioEnabled(0));
-                                    mCameraBase.addRecorderStream(
-                                            mMediaCodecRecorder.getRecorderSurface());
-                                }
-                                if (mSettingData.getIsHDMIinAudioEnabled(0)) {
-                                    mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
-                                }
+                            mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
+                            mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
+                            // CSI - DSI Tunneling
+                            if (mSettingData.getIsTunnelingEnabled(0)) {
+                                mCameraBase.enableTunneling(mPrimaryDisplaySize, 0);
+                            }
+                            if (mSettingData.getIsHDMIinVideoEnabled(0)) {
+                                // Create Encoder instance if Video is enabled
+                                mMediaCodecRecorder =
+                                        new MediaCodecRecorder(mContext, resolution[0].getWidth(),
+                                                resolution[0].getHeight(),
+                                                mSettingData.getIsHDMIinAudioEnabled(0));
+                                mCameraBase.addRecorderStream(
+                                        mMediaCodecRecorder.getRecorderSurface());
+                            }
+                            if (mSettingData.getIsHDMIinAudioEnabled(0)) {
+                                mHDMIinAudioPlayback = new HDMIinAudioPlayback(requireContext());
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
@@ -552,6 +662,8 @@ public class HomeFragment extends Fragment implements CameraDisconnectedListener
                         if (mCameraRunningStateSelected && !mCameraRunning.getAndSet(true)) {
                             Log.d(TAG, "onCameraAvailable " +
                                     "mCameraRunningStateSelected and !mCameraRunning so will start");
+                            mCameraBase.handleMLInference((byte) (
+                                    mSettingData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                             mCameraBase.startCamera(mSettingData.getCameraID(0));
                             if (mMediaCodecRecorder != null) {
                                 mMediaCodecRecorder.start(0);
