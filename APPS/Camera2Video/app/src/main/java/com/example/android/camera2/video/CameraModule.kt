@@ -74,7 +74,10 @@ data class CameraSettings(var previewInfo: StreamInfo,
                           var displayOn: Boolean,
                           var snapshotOn: Boolean,
                           var mjpegOn: Boolean,
-                          var threeCamUse: Boolean)
+                          var threeCamUse: Boolean,
+                          var primaryCameraId: String,
+                          var secondaryCameraId: String,
+                          var thirdCameraId: String)
 
 interface CameraModule {
     fun getAvailableCameras(): Array<String>
