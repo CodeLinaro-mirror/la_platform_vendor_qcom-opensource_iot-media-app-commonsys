@@ -108,7 +108,7 @@ class CameraBase(val context: Context): CameraModule {
     private var previewFps = 30
 
     private var streamConfigOpMode: Int = 0x00
-    private var isEISEnabled: Boolean = false
+    private var EISOpmodeValue: Int = 0x00
     private var isLDCEnabled: Boolean = false
     private var exposureValue = 0
     private var shdrValue = 0
@@ -224,7 +224,7 @@ class CameraBase(val context: Context): CameraModule {
         captureRequest.set(CaptureRequest.CONTROL_ENABLE_ZSL, enableZSL)
 
         // Set Opmode
-        if (isEISEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_EIS_MODE
+        streamConfigOpMode = streamConfigOpMode or EISOpmodeValue
         if (isLDCEnabled) streamConfigOpMode = streamConfigOpMode or STREAM_CONFIG_LDC_MODE
         if (previewFps == 120) streamConfigOpMode = streamConfigOpMode or HIGH_SPEED_SESSION
 
@@ -674,9 +674,22 @@ class CameraBase(val context: Context): CameraModule {
         }
     }
 
-    override fun setEISEnable(value: Boolean) {
-        isEISEnabled = value
+override fun setEISOpmodeValue(value: Int) {
+    when (value) {
+        1 -> {
+            EISOpmodeValue = SINGLE_STREAM_EIS_MODE
+            Log.d(TAG, "EISOpmodeValue set: " + SINGLE_STREAM_EIS_MODE)
+        }
+        2 -> {
+            EISOpmodeValue = DUAL_STREAM_EIS_MODE
+            Log.d(TAG, "EISOpmodeValue set: " + DUAL_STREAM_EIS_MODE)
+        }
+        else -> {
+            Log.d(TAG, "EIS disabled")
+        }
     }
+}
+
 
     override fun setLDCEnable(value: Boolean) {
         isLDCEnabled = value
@@ -981,7 +994,8 @@ class CameraBase(val context: Context): CameraModule {
 
         // Opmode
         private const val STREAM_CONFIG_ZZHDR_MODE: Int = 0xF002
-        private const val STREAM_CONFIG_EIS_MODE: Int = 0xF200
+        private const val SINGLE_STREAM_EIS_MODE: Int = 0xF200
+        private const val DUAL_STREAM_EIS_MODE: Int = 0xF400
         private const val STREAM_CONFIG_LDC_MODE: Int = 0xF800
         private const val HIGH_SPEED_SESSION: Int = 1
 

@@ -47,62 +47,8 @@ import kotlin.reflect.full.memberProperties
 
 data class DefogParams(
         val enable: Byte?,
-        val algo_type: Int?,
-        val algo_decision_mode: Int?,
-        val strength: Float?,
-        val convergence_speed: Int?,
-        val strength_range: List<Float>?,
-        val convergence_speed_range: List<Int>?,
-        val lp_color_comp_gain: Float?,
-        val lp_color_comp_gain_range: List<Float>?,
-        val abc_en: Byte?,
-        val acc_en: Byte?,
-        val afsd_en: Byte?,
-        val afsd_2a_en: Byte?,
-        val defog_dark_thres: Int?,
-        val defog_dark_thres_range: List<Int>?,
-        val defog_bright_thres: Int?,
-        val defog_bright_thres_range: List<Int>?,
-        val abc_gain: Float?,
-        val abc_gain_range: List<Float>?,
-        val acc_max_dark_str: Float?,
-        val acc_max_dark_str_range: List<Float>?,
-        val acc_max_bright_str: Float?,
-        val acc_max_bright_str_range: List<Float>?,
-        val dark_limit: Int?,
-        val dark_limit_range: List<Int>?,
-        val bright_limit: Int?,
-        val bright_limit_range: List<Int>?,
-        val dark_preserve: Int?,
-        val dark_preserve_range: List<Int>?,
-        val bright_preserve: Int?,
-        val bright_preserve_range: List<Int>?,
-        val dnr_trigparam_start_range: List<Float>?,
-        val dnr_trigparam_end_range: List<Float>?,
-        val dnr_trigparam_fog_range: List<Int>?,
-        val lux_trigparam_start_range: List<Float>?,
-        val lux_trigparam_end_range: List<Float>?,
-        val lux_trigparam_fog_range: List<Int>?,
-        val cct_trigparam_start_range: List<Float>?,
-        val cct_trigparam_end_range: List<Float>?,
-        val cct_trigparam_fog_range: List<Int>?,
-        val ce_trigparam_start_range: List<Float>?,
-        val ce_trigparam_end_range: List<Float>?,
-        val ce_trigparam_fog_range: List<Int>?,
-        val drc_trigparam_start_range: List<Float>?,
-        val drc_trigparam_end_range: List<Float>?,
-        val drc_trigparam_fog_range: List<Int>?,
-        val hdr_trigparam_start_range: List<Float>?,
-        val hdr_trigparam_end_range: List<Float>?,
-        val hdr_trigparam_fog_range: List<Int>?,
-        val trig_params: List<Float>?,
-        val ce_en: Byte?,
-        val convergence_mode: Int?,
-        val guc_en: Byte?,
-        val dcc_en: Byte?,
-        val guc_str: Float?,
-        val dcc_dark_str: Float?,
-        val dcc_bright_str: Float?
+        val strength: Int?,
+        val ates_strength: Int?
 )
 
 data class ExposureTable(
@@ -132,8 +78,6 @@ object VendorTagUtil {
     private const val TAG = "VendorTagUtil"
 
     private val TNREnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.temporal_denoise.enable",
-            Byte::class.java)
-    private val EISEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.EISenable",
             Byte::class.java)
     private val LDCEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.LDCenable",
             Byte::class.java)
@@ -393,16 +337,6 @@ object VendorTagUtil {
     fun setTNREnable(builder: CaptureRequest.Builder, value: Byte) {
         if (isTNREnable(builder)) {
             builder.set(TNREnableKey, value)
-        }
-    }
-
-    private fun isEISEnable(builder: CaptureRequest.Builder) : Boolean {
-        return isSupported(builder, EISEnableKey)
-    }
-
-    fun setEISEnable(builder: CaptureRequest.Builder, value: Byte) {
-        if (isEISEnable(builder)) {
-            builder.set(EISEnableKey, value)
         }
     }
 
