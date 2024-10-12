@@ -101,11 +101,16 @@ class AudioSettingData {
     protected Boolean isAudioEnabled;
 }
 
+class CameraSettingData {
+    protected Boolean isMLInferenceEnabled;
+}
+
 public class SettingsUtil {
 
     private static final String TAG = "SettingsUtil";
     public CalibrationData mCalibrationData;
     public AudioSettingData mAudioSettingData;
+    public CameraSettingData mCameraSettingData;
     public ArrayList<SettingsData> data;
     private static final CameraCharacteristics.Key<String> CAMERA_TYPE_CHARACTERISTIC_KEY =
             new CameraCharacteristics.Key<>("camera.type", String.class);
@@ -115,6 +120,7 @@ public class SettingsUtil {
         data = new ArrayList<>();
         mCalibrationData = new CalibrationData();
         mAudioSettingData = new AudioSettingData();
+        mCameraSettingData = new CameraSettingData();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         CameraManager manager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
 
@@ -259,6 +265,7 @@ public class SettingsUtil {
 
         mCalibrationData.isCalibrationEnabled = pref.getBoolean("msteams_cert_calibration", false);
         mAudioSettingData.isAudioEnabled = pref.getBoolean("audio_enable", false);
+        mCameraSettingData.isMLInferenceEnabled = pref.getBoolean("ml_inference_enable", false);
 
         Log.v(TAG, "SettingsUtil exit");
     }
@@ -284,6 +291,7 @@ public class SettingsUtil {
         }
         Log.d(TAG, "Is Calibration Enabled : " + mCalibrationData.isCalibrationEnabled);
         Log.d(TAG, "Is Audio Enabled : " + mAudioSettingData.isAudioEnabled);
+        Log.d(TAG, "Is ML Inference Enabled : " + mCameraSettingData.isMLInferenceEnabled);
     }
 
     public String getHDMISource(int index) {
@@ -352,5 +360,9 @@ public class SettingsUtil {
 
     public Boolean getIsAudioEnabled() {
         return mAudioSettingData.isAudioEnabled;
+    }
+
+    public Boolean getIsMLInferenceEnabled() {
+        return mCameraSettingData.isMLInferenceEnabled;
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -42,20 +42,17 @@
             android:title="Camera IDs"
             android:summary="%s"
             android:defaultValue="0" />
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
+            android:entries="@array/eis_enable_values"
+            android:entryValues="@array/eis_enable_values"
             android:key="eis_enable"
+            android:summary="%s"
             android:title="EIS Enable"
-            android:summary="EIS Enable"
-            android:defaultValue="false"/>
+            android:defaultValue="None" />
         <androidx.preference.SwitchPreference
             android:key="ldc_enable"
             android:title="LDC Enable"
             android:summary="LDC Enable"
-            android:defaultValue="false"/>
-        <androidx.preference.SwitchPreference
-            android:key="shdr_enable"
-            android:title="SHDR Enable"
-            android:summary="SHDR Enable"
             android:defaultValue="false"/>
         <androidx.preference.ListPreference
             android:key="camera_fps"
@@ -504,6 +501,13 @@
             android:key="exposure_value"
             android:title="Exposure"
             android:summary="%s"
+            android:defaultValue="0"/>
+        <androidx.preference.ListPreference
+            android:key="shdr_value"
+            android:title="SHDR Type"
+            android:summary="%s"
+            android:entries="@array/shdr_type_values"
+            android:entryValues="@array/shdr_type_values"
             android:defaultValue="0"/>
     </PreferenceCategory>
 

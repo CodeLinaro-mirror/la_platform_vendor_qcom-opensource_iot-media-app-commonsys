@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -378,9 +378,9 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
         Log.i(TAG, "initializeCamera")
         cameraBase.openCamera(settings.cameraId)
 
-        cameraBase.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase.setEISOpmodeValue(settings.cameraParams.eis_enable)
         cameraBase.setLDCEnable(settings.cameraParams.ldc_enable)
-        cameraBase.setSHDREnable(settings.cameraParams.shdr_enable)
+        cameraBase.setSHDRValue(settings.cameraParams.shdr_value)
         cameraBase.setFramerate(settings.previewInfo.fps)
 
         addCameraStreams(cameraBase, settings)

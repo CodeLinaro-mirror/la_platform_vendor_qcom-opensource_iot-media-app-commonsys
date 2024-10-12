@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -149,6 +149,10 @@ public class CameraBase {
             new CaptureRequest.Key<Integer>(
                     "org.codeaurora.qcamera3.sessionParameters.DisplayID",
                     Integer.class);
+    private static final CaptureRequest.Key<Byte> ML_INFERENCE_MODE =
+            new CaptureRequest.Key<>(
+                    "org.codeaurora.qcamera3.sessionParameters.MLInfEnable",
+                    byte.class);
 
     private static final int CHANGE_ROI_DATA_NTH_FRAME = 300;
     private final Context mCameraContext;
@@ -190,6 +194,7 @@ public class CameraBase {
     private boolean mEnableTunneling;
     private Rect mRectParams;
     private int mDisplayID;
+    private Byte mMLInfEnable;
 
     public CameraBase(Context context, CameraDisconnectedListener cameraDisconnectedListener) {
         mCameraContext = context;
@@ -488,6 +493,11 @@ public class CameraBase {
             } catch (IllegalArgumentException e) {
                 Log.w(TAG, "Resource ByPass Key does not exist");
             }
+            try {
+                mPreviewRequestBuilder.set(ML_INFERENCE_MODE, mMLInfEnable);
+            } catch (IllegalArgumentException e) {
+                Log.w(TAG, "ML Inference mode key does not exist");
+            }
             // CSI - DSI Tunneling
             if (mEnableTunneling) {
                 Log.i(TAG, "Tunneling is enabled");
@@ -679,6 +689,11 @@ public class CameraBase {
         mRectParams = rectParams;
         mDisplayID = displayID;
         Log.i(TAG, "Tunnel Mode On: Display Id # " + mDisplayID + "Display Size # " + mRectParams);
+    }
+
+    public void handleMLInference(Byte infValue) {
+        mMLInfEnable = infValue;
+        Log.i(TAG, "ML Inference value " + infValue);
     }
 }
 

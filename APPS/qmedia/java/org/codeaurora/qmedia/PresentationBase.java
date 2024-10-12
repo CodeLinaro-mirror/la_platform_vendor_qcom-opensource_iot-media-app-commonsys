@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -91,6 +91,7 @@ import org.codeaurora.qmedia.opengles.VideoComposer;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 
 public class PresentationBase extends Presentation implements CameraDisconnectedListener {
@@ -123,7 +124,6 @@ public class PresentationBase extends Presentation implements CameraDisconnected
     private final CameraDisconnectedListener mCameraDisconnectedListenerObject;
     private final Activity mActivity;
     private Display mDisplay = null;
-    private final Object lock = new Object();
     //private SnpeBase mSnpeBase = null;
 
     public PresentationBase(Context outerContext, Display display, SettingsUtil data, int index, Activity activity) {
@@ -306,43 +306,44 @@ public class PresentationBase extends Presentation implements CameraDisconnected
                                     resolution[0].getWidth() + "x" + resolution[0].getHeight());
                             int width = resolution[0].getWidth();
                             int height = resolution[0].getHeight();
+                            CountDownLatch latch = new CountDownLatch(1);
+
                             mActivity.runOnUiThread(() -> {
-                                synchronized (lock) {
                                     mHDMIinSurfaceHolder.setFixedSize(width, height);
-                                    lock.notify();
-                                }
+                                    latch.countDown();
                             });
-                            synchronized (lock) {
-                                try {
-                                    lock.wait();
-                                } catch (InterruptedException e) {
-                                    e.printStackTrace();
-                                }
-                                mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
-                                mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
-                                // CSI -DSI tunneling
-                                if (mData.getIsTunnelingEnabled(mPresentationIndex)) {
-                                    Rect displaySize = new Rect();
-                                    mDisplay.getRectSize(displaySize);
-                                    mCameraBase.enableTunneling(displaySize, mDisplay.getDisplayId());
-                                }
-                                if (mData.getIsHDMIinVideoEnabled(mPresentationIndex)) {
-                                    mMediaCodecRecorder = new MediaCodecRecorder(getContext(),
-                                            resolution[0].getWidth(),
-                                            resolution[0].getHeight(),
-                                            mData.getIsHDMIinAudioEnabled(mPresentationIndex));
-                                    mCameraBase.addRecorderStream(
-                                            mMediaCodecRecorder.getRecorderSurface());
-                                }
-                                if (mData.getIsHDMIinAudioEnabled(mPresentationIndex)) {
-                                    mHDMIinAudioPlayback = new HDMIinAudioPlayback(getContext());
-                                }
+
+                            try {
+                                latch.await();
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                            mCameraBase = new CameraBase(getContext(), mCameraDisconnectedListenerObject);
+                            mCameraBase.addPreviewStream(mHDMIinSurfaceHolder);
+                            // CSI -DSI tunneling
+                            if (mData.getIsTunnelingEnabled(mPresentationIndex)) {
+                                Rect displaySize = new Rect();
+                                mDisplay.getRectSize(displaySize);
+                                mCameraBase.enableTunneling(displaySize, mDisplay.getDisplayId());
+                            }
+                            if (mData.getIsHDMIinVideoEnabled(mPresentationIndex)) {
+                                mMediaCodecRecorder = new MediaCodecRecorder(getContext(),
+                                        resolution[0].getWidth(),
+                                        resolution[0].getHeight(),
+                                        mData.getIsHDMIinAudioEnabled(mPresentationIndex));
+                                mCameraBase.addRecorderStream(
+                                        mMediaCodecRecorder.getRecorderSurface());
+                            }
+                            if (mData.getIsHDMIinAudioEnabled(mPresentationIndex)) {
+                                mHDMIinAudioPlayback = new HDMIinAudioPlayback(getContext());
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         if (mCameraRunningStateSelected && !mCameraRunning.getAndSet(true)) {
                             Log.d(TAG, "onCameraAvailable mCameraRunningStateSelected so will start");
+                            mCameraBase.handleMLInference((byte) (
+                                    mData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                             mCameraBase.startCamera(mData.getCameraID(mPresentationIndex));
                             if (mMediaCodecRecorder != null) {
                                 mMediaCodecRecorder.start(0);
@@ -439,6 +440,8 @@ public class PresentationBase extends Presentation implements CameraDisconnected
             }
             if (!mCameraRunning.getAndSet(true)) {
                 if (mCameraBase != null) { // mCameraRunning won't matter if no camera is there
+                mCameraBase.handleMLInference((byte) (
+                        mData.getIsMLInferenceEnabled() ? 0x01 : 0x00));
                     mCameraBase.startCamera(mData.getCameraID(mPresentationIndex));
                 }
                 if (mData.getHDMISource(mPresentationIndex).equals("Camera") &&

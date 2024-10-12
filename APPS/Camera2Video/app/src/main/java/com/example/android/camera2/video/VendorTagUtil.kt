@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -47,62 +47,8 @@ import kotlin.reflect.full.memberProperties
 
 data class DefogParams(
         val enable: Byte?,
-        val algo_type: Int?,
-        val algo_decision_mode: Int?,
-        val strength: Float?,
-        val convergence_speed: Int?,
-        val strength_range: List<Float>?,
-        val convergence_speed_range: List<Int>?,
-        val lp_color_comp_gain: Float?,
-        val lp_color_comp_gain_range: List<Float>?,
-        val abc_en: Byte?,
-        val acc_en: Byte?,
-        val afsd_en: Byte?,
-        val afsd_2a_en: Byte?,
-        val defog_dark_thres: Int?,
-        val defog_dark_thres_range: List<Int>?,
-        val defog_bright_thres: Int?,
-        val defog_bright_thres_range: List<Int>?,
-        val abc_gain: Float?,
-        val abc_gain_range: List<Float>?,
-        val acc_max_dark_str: Float?,
-        val acc_max_dark_str_range: List<Float>?,
-        val acc_max_bright_str: Float?,
-        val acc_max_bright_str_range: List<Float>?,
-        val dark_limit: Int?,
-        val dark_limit_range: List<Int>?,
-        val bright_limit: Int?,
-        val bright_limit_range: List<Int>?,
-        val dark_preserve: Int?,
-        val dark_preserve_range: List<Int>?,
-        val bright_preserve: Int?,
-        val bright_preserve_range: List<Int>?,
-        val dnr_trigparam_start_range: List<Float>?,
-        val dnr_trigparam_end_range: List<Float>?,
-        val dnr_trigparam_fog_range: List<Int>?,
-        val lux_trigparam_start_range: List<Float>?,
-        val lux_trigparam_end_range: List<Float>?,
-        val lux_trigparam_fog_range: List<Int>?,
-        val cct_trigparam_start_range: List<Float>?,
-        val cct_trigparam_end_range: List<Float>?,
-        val cct_trigparam_fog_range: List<Int>?,
-        val ce_trigparam_start_range: List<Float>?,
-        val ce_trigparam_end_range: List<Float>?,
-        val ce_trigparam_fog_range: List<Int>?,
-        val drc_trigparam_start_range: List<Float>?,
-        val drc_trigparam_end_range: List<Float>?,
-        val drc_trigparam_fog_range: List<Int>?,
-        val hdr_trigparam_start_range: List<Float>?,
-        val hdr_trigparam_end_range: List<Float>?,
-        val hdr_trigparam_fog_range: List<Int>?,
-        val trig_params: List<Float>?,
-        val ce_en: Byte?,
-        val convergence_mode: Int?,
-        val guc_en: Byte?,
-        val dcc_en: Byte?,
-        val guc_str: Float?,
-        val dcc_dark_str: Float?,
-        val dcc_bright_str: Float?
+        val strength: Int?,
+        val ates_strength: Int?
 )
 
 data class ExposureTable(
@@ -133,11 +79,7 @@ object VendorTagUtil {
 
     private val TNREnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.temporal_denoise.enable",
             Byte::class.java)
-    private val EISEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.EISenable",
-            Byte::class.java)
     private val LDCEnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.EISLDC.LDCenable",
-            Byte::class.java)
-    private val SHDREnableKey = CaptureRequest.Key("org.codeaurora.qcamera3.shdr.enable",
             Byte::class.java)
     private val CdsModeKey = CaptureRequest.Key("org.codeaurora.qcamera3.CDS.cds_mode",
             Int::class.java)
@@ -166,6 +108,7 @@ object VendorTagUtil {
     private val HDRVideoMode = CaptureRequest.Key("org.quic.camera2.streamconfigs.HDRVideoMode", Byte::class.java)
     private val SATURATION_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.saturation.use_saturation", Int::class.java)
     private val SHARPNESS_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.sharpness.strength", Int::class.java)
+    private val SHDR_TYPE_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sessionParameters.SWSHDRType", Int::class.java)
 
     private const val MANUAL_WB_DISABLE_MODE = 0
     private const val MANUAL_WB_CCT_MODE = 1
@@ -273,9 +216,19 @@ object VendorTagUtil {
         return isSupported(builder, SHARPNESS_LEVEL_KEY)
     }
 
+    private fun isSHDRSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, SHDR_TYPE_VALUE)
+    }
+
     fun setSharpnessLevel(builder: CaptureRequest.Builder, value: Int) {
         if (isSharpnessLevelSupported(builder)) {
             builder.set(SHARPNESS_LEVEL_KEY, value)
+        }
+    }
+
+    fun setSHDRValue(builder: CaptureRequest.Builder, value: Int) {
+        if (isSHDRSupported(builder)) {
+            builder.set(SHDR_TYPE_VALUE, value)
         }
     }
 
@@ -367,16 +320,6 @@ object VendorTagUtil {
         }
     }
 
-    private fun isSHDREnable(builder: CaptureRequest.Builder) : Boolean {
-        return isSupported(builder, SHDREnableKey)
-    }
-
-    fun setSHDREnable(builder: CaptureRequest.Builder, value: Byte) {
-        if (isSHDREnable(builder)) {
-            builder.set(SHDREnableKey, value)
-        }
-    }
-
     private fun isLDCEnable(builder: CaptureRequest.Builder) : Boolean {
         return isSupported(builder, LDCEnableKey)
     }
@@ -394,16 +337,6 @@ object VendorTagUtil {
     fun setTNREnable(builder: CaptureRequest.Builder, value: Byte) {
         if (isTNREnable(builder)) {
             builder.set(TNREnableKey, value)
-        }
-    }
-
-    private fun isEISEnable(builder: CaptureRequest.Builder) : Boolean {
-        return isSupported(builder, EISEnableKey)
-    }
-
-    fun setEISEnable(builder: CaptureRequest.Builder, value: Byte) {
-        if (isEISEnable(builder)) {
-            builder.set(EISEnableKey, value)
         }
     }
 

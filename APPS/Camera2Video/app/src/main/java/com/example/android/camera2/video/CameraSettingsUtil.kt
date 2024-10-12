@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -36,6 +36,7 @@ package com.example.android.camera2.video
 
 import android.content.Context
 import androidx.preference.PreferenceManager
+import android.widget.Toast
 
 object CameraSettingsUtil {
 
@@ -139,15 +140,30 @@ object CameraSettingsUtil {
             recorderStreams.add(streamInfo2)
         }
 
+        val eisEnable = sharedPref.getString("eis_enable", null)
+
+        if (!sharedPref.getBoolean("vid_0_enable", false) && eisEnable.equals("Dual Stream")) {
+            Toast.makeText(context, "Please Enable Recording for Dual Stream EIS",
+            Toast.LENGTH_SHORT).show()
+        }
+
+
+        val eisOpMode = when (eisEnable) {
+            "None" -> 0
+            "Single Stream" -> 1
+            "Dual Stream" -> 2
+            else -> 0
+        }
+
         return CameraSettings(
                 previewInfo,
                 recorderStreams,
                 snapshotInfo,
                 CameraParameters(
-                        sharedPref.getBoolean("eis_enable", false),
                         sharedPref.getBoolean("ldc_enable", false),
-                        sharedPref.getBoolean("shdr_enable", false),
                         sharedPref.getString("exposure_value", null)!!.toInt(),
+                        sharedPref.getString("shdr_value", null)!!.toInt(),
+                        eisOpMode,
                         sharedPref.getBoolean("zsl_enable", true)
                 ),
                 sharedPref.getString("camera_id", null)!!,
