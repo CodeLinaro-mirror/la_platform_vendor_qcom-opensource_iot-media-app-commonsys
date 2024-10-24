@@ -1,7 +1,7 @@
 /*
 # Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -64,6 +64,7 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat.finishAffinity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.preference.PreferenceManager
 import com.example.android.camera2.video.CameraActivity
 
 
@@ -91,10 +92,12 @@ class PermissionsFragment : Fragment() {
             requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         Log.i(TAG, "onRequestPermissionsResult")
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
         if (requestCode == PERMISSIONS_REQUEST_CODE) {
             if (hasPermissions(requireContext())) {
                 // Takes the user to the success fragment when permission is granted
-                (context as CameraActivity).switchToLaunchFragment()
+                (context as CameraActivity).switchToLaunchFragment(isLpmEnabled)
             } else {
                 Toast.makeText(context, "Please give permissions", Toast.LENGTH_LONG).show()
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
