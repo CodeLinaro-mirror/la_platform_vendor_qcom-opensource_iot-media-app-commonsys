@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024-2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -109,6 +109,7 @@ object VendorTagUtil {
     private val SATURATION_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.saturation.use_saturation", Int::class.java)
     private val SHARPNESS_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.sharpness.strength", Int::class.java)
     private val SHDR_TYPE_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sessionParameters.SWSHDRType", Int::class.java)
+    private val LPM_TIMEOUT_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sensorwriteinput.CameraStandbyTimeout", Int::class.java)
 
     private const val MANUAL_WB_DISABLE_MODE = 0
     private const val MANUAL_WB_CCT_MODE = 1
@@ -216,6 +217,10 @@ object VendorTagUtil {
         return isSupported(builder, SHARPNESS_LEVEL_KEY)
     }
 
+    private fun isLPMTimeoutSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, LPM_TIMEOUT_VALUE)
+    }
+
     private fun isSHDRSupported(builder: CaptureRequest.Builder): Boolean {
         return isSupported(builder, SHDR_TYPE_VALUE)
     }
@@ -223,6 +228,12 @@ object VendorTagUtil {
     fun setSharpnessLevel(builder: CaptureRequest.Builder, value: Int) {
         if (isSharpnessLevelSupported(builder)) {
             builder.set(SHARPNESS_LEVEL_KEY, value)
+        }
+    }
+
+    fun setLPMTimeout(builder: CaptureRequest.Builder, value: Int) {
+        if (isLPMTimeoutSupported(builder)) {
+            builder.set(LPM_TIMEOUT_VALUE, value)
         }
     }
 
