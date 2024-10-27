@@ -170,7 +170,10 @@ object CameraSettingsUtil {
                 sharedPref.getBoolean("display_enable", false),
                 sharedPref.getBoolean("snapshot_enable", false),
                 sharedPref.getBoolean("mjpeg_enable", false),
-                sharedPref.getBoolean("three_camera", false)
+                sharedPref.getBoolean("three_camera", false),
+                sharedPref.getString("primary_camera_selection", "0"),
+                sharedPref.getString("secondary_camera_selection", "1"),
+                sharedPref.getString("third_camera_selection", "2")
         )
     }
 }

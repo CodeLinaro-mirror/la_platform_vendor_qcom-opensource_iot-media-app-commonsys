@@ -82,6 +82,25 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         cameraPreference?.entries = detectedCameras.toTypedArray()
         cameraPreference?.entryValues = detectedCameraIds.toTypedArray()
 
+        val primaryCameraPreference =
+                screen.findPreference<ListPreference>("primary_camera_selection");
+        primaryCameraPreference?.entries = detectedCameras.toTypedArray()
+        primaryCameraPreference?.entryValues = detectedCameraIds.toTypedArray()
+
+        val secondaryCameraPreference =
+                screen.findPreference<ListPreference>("secondary_camera_selection");
+        secondaryCameraPreference?.entries = detectedCameras.toTypedArray()
+        secondaryCameraPreference?.entryValues = detectedCameraIds.toTypedArray()
+
+        val threeCamUseCasePreference =
+                screen.findPreference<SwitchPreference>("three_camera");
+
+        val thirdCameraPreference =
+                screen.findPreference<ListPreference>("third_camera_selection");
+        thirdCameraPreference?.entries = detectedCameras.toTypedArray()
+        thirdCameraPreference?.entryValues = detectedCameraIds.toTypedArray()
+        thirdCameraPreference?.isVisible = threeCamUseCasePreference?.isChecked == true
+
         try {
             val pInfo = requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
             val version = pInfo.versionName
@@ -140,6 +159,49 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             true
         }
 
+        val snapshotEnableSwitch = screen.findPreference<SwitchPreference>("snapshot_enable")
+        val snapshotSettingsCategory = screen.findPreference<PreferenceCategory>("snapshot_settings")
+
+        snapshotEnableSwitch?.apply {
+            setOnPreferenceChangeListener { _, preference ->
+                snapshotSettingsCategory?.isVisible = preference as Boolean
+                true
+            }
+            snapshotSettingsCategory?.isVisible = isChecked
+        }
+
+        val video0EnableSwitch = screen.findPreference<SwitchPreference>("vid_0_enable")
+        val video0settingsCategory = screen.findPreference<PreferenceCategory>("vid_0_settings")
+
+        video0EnableSwitch?.apply {
+            setOnPreferenceChangeListener { _, preference ->
+                video0settingsCategory?.isVisible = preference as Boolean
+                true
+            }
+            video0settingsCategory?.isVisible = isChecked
+        }
+
+        val video1EnableSwitch = findPreference<SwitchPreference>("vid_1_enable")
+        val video1settingsCategory = findPreference<PreferenceCategory>("vid_1_settings")
+
+        video1EnableSwitch?.apply {
+            setOnPreferenceChangeListener { _, preference ->
+                video1settingsCategory?.isVisible = preference as Boolean
+                true
+            }
+            video1settingsCategory?.isVisible = isChecked
+        }
+
+        val video2EnableSwitch = screen.findPreference<SwitchPreference>("vid_2_enable")
+        val video2settingsCategory = screen.findPreference<PreferenceCategory>("vid_2_settings")
+
+        video2EnableSwitch?.apply {
+            setOnPreferenceChangeListener { _, preference ->
+                video2settingsCategory?.isVisible = preference as Boolean
+                true
+            }
+            video2settingsCategory?.isVisible = isChecked
+        }
         updateCameraPreferences()
         updateEncodePreference()
     }
@@ -213,31 +275,25 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         Log.i(TAG, "onSharedPreferenceChanged")
         when (key) {
             "camera_id" -> updateCameraPreferences()
-            "dual_camera" -> {
-                val screen: PreferenceScreen = this.preferenceScreen
-                val dualCam = screen.findPreference<SwitchPreference>("dual_camera")
-                val threeCam = screen.findPreference<SwitchPreference>("three_camera")
-
-                if (threeCam != null && dualCam != null) {
-                    threeCam.isChecked = when (dualCam.isChecked) {
-                        true -> false
-                        false -> true
-                    }
-                }
-            }
-            "three_camera" -> {
-                val screen: PreferenceScreen = this.preferenceScreen
-                val dualCam = screen.findPreference<SwitchPreference>("dual_camera")
-                val threeCam = screen.findPreference<SwitchPreference>("three_camera")
-
-                if (threeCam != null && dualCam != null) {
-                    dualCam.isChecked = when (threeCam.isChecked) {
-                        true -> false
-                        false -> true
-                    }
-                }
-            }
+            "dual_camera", "three_camera" -> toggleCameraPreferences(key)
             else -> updateEncodePreference()
+        }
+    }
+
+    private fun toggleCameraPreferences(changedKey: String) {
+        val screen: PreferenceScreen = this.preferenceScreen
+        val dualCam = screen.findPreference<SwitchPreference>("dual_camera")
+        val threeCam = screen.findPreference<SwitchPreference>("three_camera")
+        val thirdCamSelection =
+                screen.findPreference<ListPreference>("third_camera_selection")
+
+        if (dualCam != null && threeCam != null) {
+            if (changedKey == "dual_camera") {
+                threeCam.isChecked = !dualCam.isChecked
+            } else {
+                dualCam.isChecked = !threeCam.isChecked
+            }
+            thirdCamSelection?.isVisible = threeCam.isChecked
         }
     }
 
