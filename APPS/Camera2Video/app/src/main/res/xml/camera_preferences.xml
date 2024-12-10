@@ -42,11 +42,13 @@
             android:title="Camera IDs"
             android:summary="%s"
             android:defaultValue="0" />
-        <androidx.preference.SwitchPreference
+        <androidx.preference.ListPreference
+            android:entries="@array/eis_enable_values"
+            android:entryValues="@array/eis_enable_values"
             android:key="eis_enable"
+            android:summary="%s"
             android:title="EIS Enable"
-            android:summary="EIS Enable"
-            android:defaultValue="false"/>
+            android:defaultValue="None" />
         <androidx.preference.SwitchPreference
             android:key="ldc_enable"
             android:title="LDC Enable"

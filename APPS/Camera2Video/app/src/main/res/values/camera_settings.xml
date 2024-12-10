@@ -184,4 +184,10 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+
+    <string-array name="eis_enable_values">
+        <item>None</item>
+        <item>Single Stream</item>
+        <item>Dual Stream</item>
+    </string-array>
 </resources>

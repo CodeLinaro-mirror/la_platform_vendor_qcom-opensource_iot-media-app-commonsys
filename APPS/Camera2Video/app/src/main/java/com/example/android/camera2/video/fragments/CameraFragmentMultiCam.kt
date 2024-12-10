@@ -429,8 +429,9 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
         Log.i(TAG, "initializeCamera")
         cameraBase0.openCamera(camera0Id)
 
-        cameraBase0.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase0.setEISOpmodeValue(settings.cameraParams.eis_enable)
         cameraBase0.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase0.setSHDRValue(settings.cameraParams.shdr_value)
         cameraBase0.setFramerate(settings.previewInfo.fps)
 
         // Supports max two streams per camera. Remove the excess.
@@ -445,8 +446,9 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
 
         cameraBase1.openCamera(camera1Id)
 
-        cameraBase1.setEISEnable(settings.cameraParams.eis_enable)
+        cameraBase1.setEISOpmodeValue(settings.cameraParams.eis_enable)
         cameraBase1.setLDCEnable(settings.cameraParams.ldc_enable)
+        cameraBase1.setSHDRValue(settings.cameraParams.shdr_value)
         cameraBase1.setFramerate(settings.previewInfo.fps)
 
         addCameraStreams(cameraBase1, settings, viewFinder1.holder.surface, previewSize1)
