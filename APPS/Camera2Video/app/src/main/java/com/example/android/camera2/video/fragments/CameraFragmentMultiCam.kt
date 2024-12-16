@@ -96,9 +96,9 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
 
     private val videoOverlayList = mutableListOf<VideoOverlay>()
 
-    private val camera0Id = "0"
-    private val camera1Id = "1"
-    private val camera2Id = "2"
+    private lateinit var camera0Id: String
+    private lateinit var camera1Id: String
+    private lateinit var camera2Id: String
 
     var readyCount = 0
 
@@ -129,10 +129,14 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
         // Make Video Record button invisible if there is no encoder stream
         if (settings.recorderInfo.isEmpty()) recorder_button.visibility = View.INVISIBLE
 
+        camera0Id = settings.primaryCameraId
+        camera1Id = settings.secondaryCameraId
+
         characteristics0 = cameraManager.getCameraCharacteristics(camera0Id)
         characteristics1 = cameraManager.getCameraCharacteristics(camera1Id)
 
         if (settings.threeCamUse) {
+            camera2Id = settings.thirdCameraId
             cameraBase2 = CameraBase(requireContext().applicationContext)
             cameraBase2.listeners.add(this)
             characteristics2 = cameraManager.getCameraCharacteristics(camera2Id)

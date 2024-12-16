@@ -16,6 +16,9 @@ import android.os.SystemProperties;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
+import java.util.Arrays;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,10 +33,12 @@ public class UMDService extends Service {
     private AudioCapture mAudioCapture = null;
     private AudioPlayback mAudioPlayback = null;
     private boolean mThreadActive = true;
+    private static String mUSBConfig;
     private static String mMode;
-    private static final String UMDADAPTOR_PROP = "persist.vendor.umdadaptor.mode";
+    private static final String USBCONFIG_PROP = "sys.usb.config";
+    private static final String USBCONFIG_DEFAULT = "diag,uvc,adb";
     private static final String UVC = "uvc";
-    private static final String UAC = "uac";
+    private static final String UAC = "uac2";
     private static final String UVC_UAC = "uvc,uac";
     private static final String NOTIFICATION_CHANNEL_ID = "Foreground service";
     private static final int NOTIFICATION_ID = 1;
@@ -78,6 +83,23 @@ public class UMDService extends Service {
         }
     }
 
+    private String getUSBMode(String usbConfig) {
+        String mode = null;
+        Set<String> configs = new HashSet<>(Arrays.asList(usbConfig.split(",")));
+        boolean supportsUAC = configs.contains(UAC);
+        boolean supportsUVC = configs.contains(UVC) ||
+            configs.stream().anyMatch(config -> config.matches(".*\\d+(?=xuvc).*"));
+
+        if (supportsUAC && supportsUVC)
+            mode = UVC_UAC;
+        else if (supportsUAC)
+            mode = UAC;
+        else if (supportsUVC)
+            mode = UVC;
+        Log.i(TAG, String.format("mode is %s", mode));
+        return mode;
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         throw new UnsupportedOperationException("Not yet implemented");
@@ -90,7 +112,8 @@ public class UMDService extends Service {
         } catch (RemoteException e) {
             Log.i(TAG, "Remote Exception");
         }
-        mMode = SystemProperties.get(UMDADAPTOR_PROP, UVC);
+        mUSBConfig = SystemProperties.get(USBCONFIG_PROP, USBCONFIG_DEFAULT);
+        mMode = getUSBMode(mUSBConfig);
 
         if(mMode.equals(UAC) || mMode.equals(UVC_UAC)) {
             try {
