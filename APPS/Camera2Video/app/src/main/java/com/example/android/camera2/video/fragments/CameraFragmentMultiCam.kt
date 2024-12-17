@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -102,10 +102,10 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
 
     var readyCount = 0
 
-    val capture_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button) }
-    val recorder_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button) }
-    val chronometer_dual by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer_dual) }
-    val thumbnailButton3 by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton3) }
+    val capture_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button)!! }
+    val recorder_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button)!! }
+    val chronometer_dual by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer_dual)!! }
+    val thumbnailButton3 by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton3)!! }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -142,9 +142,9 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
             characteristics2 = cameraManager.getCameraCharacteristics(camera2Id)
         }
 
-        overlay = view.findViewById(R.id.overlay)
-        viewFinder0 = view.findViewById(R.id.view_finder)
-        viewFinder1 = view.findViewById(R.id.view_finder1)
+        overlay = view.findViewById(R.id.overlay)!!
+        viewFinder0 = view.findViewById(R.id.view_finder)!!
+        viewFinder1 = view.findViewById(R.id.view_finder1)!!
 
         viewFinder0.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceDestroyed(holder: SurfaceHolder) = Unit

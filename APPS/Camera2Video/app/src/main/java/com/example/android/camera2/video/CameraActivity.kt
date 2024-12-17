@@ -88,14 +88,14 @@ class CameraActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mActivity = WeakReference(this)
         setContentView(R.layout.activity_camera)
-        container = findViewById(R.id.fragment_container)
+        container = findViewById(R.id.fragment_container)!!
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
         val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
         updateTabVisibility(isLpmEnabled)
         if (savedInstanceState == null) {
             switchToLaunchFragment(isLpmEnabled)
         }
-        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)!!
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 Log.i(TAG, "onTabSelected")
@@ -166,7 +166,7 @@ class CameraActivity : AppCompatActivity() {
 
     fun enableTabs() {
         Log.i(TAG, "enableTabs")
-        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)!!
         val tabStrip = tabLayout.getChildAt(0) as LinearLayout
         for (i in 0 until tabStrip.childCount) {
             tabStrip.getChildAt(i).isClickable = true
@@ -175,7 +175,7 @@ class CameraActivity : AppCompatActivity() {
 
     private fun disableTabs() {
         Log.i(TAG, "disableTabs")
-        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)!!
         val tabStrip = tabLayout.getChildAt(0) as LinearLayout
         for (i in 0 until tabStrip.childCount) {
             tabStrip.getChildAt(i).isClickable = false
@@ -217,7 +217,7 @@ class CameraActivity : AppCompatActivity() {
 
     override fun onBackPressed() {
         Log.i(TAG, "onBackPressed")
-        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)!!
         if (tabLayout.selectedTabPosition == 2) {
             disableTabs() // Disabling before tab switch
             tabLayout.getTabAt(lastNonSettingTab)?.select()

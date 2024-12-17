@@ -138,14 +138,18 @@ private fun showTimeoutInputDialog() {
     }
 
     private fun adjustMenuItems() {
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
-        val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
-        popup.menu.clear()
-        if (isLpmEnabled) {
-            popup.menu.add(0, R.id.lpm_timeout_value, 0, "LPM Timeout")
-        } else {
-            popup.inflate(R.menu.camera_menu)
-            popup.menu.removeItem(R.id.lpm_timeout_value)
+        context?.let { ctx ->
+            val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(ctx)
+            val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
+            popup.menu.clear()
+            if (isLpmEnabled) {
+                popup.menu.add(0, R.id.lpm_timeout_value, 0, "LPM Timeout")
+            } else {
+                popup.inflate(R.menu.camera_menu)
+                popup.menu.removeItem(R.id.lpm_timeout_value)
+            }
+        } ?: run {
+            Log.e("CameraMenu", "Context is null")
         }
     }
 

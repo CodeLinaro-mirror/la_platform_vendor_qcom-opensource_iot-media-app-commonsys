@@ -82,13 +82,13 @@ class CameraFragmentLPM : Fragment(), CameraReadyListener {
     private lateinit var settings: CameraSettings
     private lateinit var relativeOrientation: OrientationLiveData
     private lateinit var previewSize: Size
-    private val captureButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button) }
-    private val recorderButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button) }
-    private val chronometer by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer) }
-    private val thumbnailButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton) }
-    private val openCameraButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.open_camera_button) }
-    private val startSessionButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.start_session_button) }
-    private val startPreviewButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.start_preview_button) }
+    private val captureButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button)!! }
+    private val recorderButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button)!! }
+    private val chronometer by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer)!! }
+    private val thumbnailButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton)!! }
+    private val openCameraButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.open_camera_button)!! }
+    private val startSessionButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.start_session_button)!! }
+    private val startPreviewButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Button>(R.id.start_preview_button)!! }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -107,7 +107,7 @@ class CameraFragmentLPM : Fragment(), CameraReadyListener {
         captureButton.visibility = View.INVISIBLE
         recorderButton.visibility = View.INVISIBLE
         characteristics = cameraManager.getCameraCharacteristics(settings.cameraId)
-        viewFinder = view.findViewById(R.id.view_finder)
+        viewFinder = view.findViewById(R.id.view_finder)!!
         viewFinder.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceDestroyed(holder: SurfaceHolder) = Unit
             override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) = Unit

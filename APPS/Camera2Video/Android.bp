@@ -33,7 +33,7 @@ android_library {
     "kotlin-reflect",
     "kotlinx_coroutines",
     "kotlinx_coroutines_android",
-    "gson-prebuilt-jar",
+    "gson",
   ],
 
   optimize: {
@@ -86,7 +86,7 @@ android_app {
     "kotlin-reflect",
     "kotlinx_coroutines",
     "kotlinx_coroutines_android",
-    "gson-prebuilt-jar",
+    "gson",
     "utils",
   ],
 

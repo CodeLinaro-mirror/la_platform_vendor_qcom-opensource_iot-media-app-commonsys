@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2022, 2024 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2024-2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -97,10 +97,10 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
     private val videoOverlayList = mutableListOf<VideoOverlay>()
 
 
-    val capture_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button) }
-    val recorder_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button) }
-    val chronometer by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer) }
-    val thumbnailButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton) }
+    val capture_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.capture_button)!! }
+    val recorder_button by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageButton>(R.id.recorder_button)!! }
+    val chronometer by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<Chronometer>(R.id.chronometer)!! }
+    val thumbnailButton by lazy { (CameraActivity.mActivity?.get() as CameraActivity).findViewById<ImageView>(R.id.thumbnailButton)!! }
 
     override fun onCreateView(
             inflater: LayoutInflater,
@@ -124,8 +124,8 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
 
         characteristics = cameraManager.getCameraCharacteristics(settings.cameraId)
 
-        overlay = view.findViewById(R.id.overlay)
-        viewFinder = view.findViewById(R.id.view_finder)
+        overlay = view.findViewById(R.id.overlay)!!
+        viewFinder = view.findViewById(R.id.view_finder)!!
 
         viewFinder.holder.addCallback(object : SurfaceHolder.Callback {
             override fun surfaceDestroyed(holder: SurfaceHolder) = Unit

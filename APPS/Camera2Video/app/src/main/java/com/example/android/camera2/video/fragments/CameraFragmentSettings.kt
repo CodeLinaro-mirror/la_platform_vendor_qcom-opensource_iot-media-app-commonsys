@@ -169,7 +169,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
         }
 
         // Set initial tab visibility based on the preference value
-        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
         updateTabVisibility(isLpmEnabled)
         updateSettingsTab(isLpmEnabled)
@@ -311,7 +311,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     override fun onResume() {
         Log.i(TAG, "onResume")
         super.onResume()
-        preferenceScreen.sharedPreferences
+        preferenceScreen.sharedPreferences!!
                 .registerOnSharedPreferenceChangeListener(this)
         //Tab switch successful
         (mActivity?.get() as CameraActivity).enableTabs()
@@ -320,7 +320,7 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
     override fun onPause() {
         Log.i(TAG, "onPause")
         super.onPause()
-        preferenceScreen.sharedPreferences
+        preferenceScreen.sharedPreferences!!
                 .unregisterOnSharedPreferenceChangeListener(this)
     }
 
