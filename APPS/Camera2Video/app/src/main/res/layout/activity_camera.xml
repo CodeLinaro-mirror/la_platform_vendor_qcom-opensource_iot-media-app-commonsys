@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
 ~ Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-~ Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2022, 2025 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -74,6 +74,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Multi Cam" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/lpm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="LPM" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/settings"

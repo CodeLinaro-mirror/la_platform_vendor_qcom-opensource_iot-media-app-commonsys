@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -52,6 +52,7 @@ import android.util.Size
 import android.view.View
 import android.widget.Toast
 import androidx.preference.*
+import com.google.android.material.tabs.TabLayout
 import com.example.android.camera2.video.CameraActivity
 import com.example.android.camera2.video.CameraActivity.Companion.mActivity
 import com.example.android.camera2.video.CameraSettingsUtil.getCameraSettings
@@ -159,6 +160,20 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             true
         }
 
+        val switchPreference = findPreference<SwitchPreference>("lpm_enable")
+        switchPreference?.setOnPreferenceChangeListener { _, lpmEnable ->
+            val isChecked = lpmEnable as Boolean
+            updateTabVisibility(isChecked)
+            updateSettingsTab(isChecked)
+            true
+        }
+
+        // Set initial tab visibility based on the preference value
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
+        updateTabVisibility(isLpmEnabled)
+        updateSettingsTab(isLpmEnabled)
+
         val snapshotEnableSwitch = screen.findPreference<SwitchPreference>("snapshot_enable")
         val snapshotSettingsCategory = screen.findPreference<PreferenceCategory>("snapshot_settings")
 
@@ -219,6 +234,49 @@ class CameraFragmentSettings : PreferenceFragmentCompat(), SharedPreferences.OnS
             copyToFile(data, "/LTM_Table.json")
         }
     }
+
+    private fun updateTabVisibility(isChecked: Boolean) {
+        val tabLayout = activity?.findViewById<TabLayout>(R.id.tabs_menu)
+        tabLayout?.let {
+            val videoTab = it.getTabAt(0)
+            val multiCamTab = it.getTabAt(1)
+            val lpmTab = it.getTabAt(2)
+            val settingsTab = it.getTabAt(3)
+            if (isChecked) {
+                lpmTab?.view?.visibility = View.VISIBLE
+                videoTab?.view?.visibility = View.GONE
+                multiCamTab?.view?.visibility = View.GONE
+            } else {
+                lpmTab?.view?.visibility = View.GONE
+                videoTab?.view?.visibility = View.VISIBLE
+                multiCamTab?.view?.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    private fun updateSettingsTab(isChecked: Boolean) {
+        val previewOverlay = preferenceScreen.findPreference<ListPreference>("preview_overlay")
+        previewOverlay?.isVisible = !isChecked
+
+        val switchPreference = findPreference<SwitchPreference>("vid_0_enable")
+        if(switchPreference?.isChecked == true){
+            val video0Overlay = preferenceScreen.findPreference<ListPreference>("vid_0_overlay")
+            video0Overlay?.isVisible = !isChecked
+        }
+
+        val video1Enable = preferenceScreen.findPreference<SwitchPreference>("vid_1_enable")
+        video1Enable?.isVisible = !isChecked
+
+        val video2Enable = preferenceScreen.findPreference<SwitchPreference>("vid_2_enable")
+        video2Enable?.isVisible = !isChecked
+
+        val multiCameraCategory = preferenceScreen.findPreference<PreferenceCategory>("multi_camera")
+        multiCameraCategory?.isVisible = !isChecked
+
+        val cameraSettingsCategory = preferenceScreen.findPreference<PreferenceCategory>("camera_settings")
+        cameraSettingsCategory?.isVisible = !isChecked
+    }
+
 
     private fun copyToFile(data: Intent?, filename: String) {
         val contentDescriber: Uri? = data?.data

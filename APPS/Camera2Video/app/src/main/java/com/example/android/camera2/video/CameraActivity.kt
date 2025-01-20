@@ -1,7 +1,7 @@
 /*
 # Changes from Qualcomm Innovation Center, Inc. are provided under the following license:
 
-# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -73,6 +73,7 @@ import com.example.android.camera2.video.fragments.CameraFragmentMultiCam
 import com.example.android.camera2.video.fragments.CameraFragmentSettings
 import com.example.android.camera2.video.fragments.CameraFragmentVideo
 import com.example.android.camera2.video.fragments.PermissionsFragment
+import com.example.android.camera2.video.fragments.CameraFragmentLPM
 import com.google.android.material.tabs.TabLayout
 import java.lang.ref.WeakReference
 
@@ -88,8 +89,11 @@ class CameraActivity : AppCompatActivity() {
         mActivity = WeakReference(this)
         setContentView(R.layout.activity_camera)
         container = findViewById(R.id.fragment_container)
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
+        updateTabVisibility(isLpmEnabled)
         if (savedInstanceState == null) {
-            switchToLaunchFragment()
+            switchToLaunchFragment(isLpmEnabled)
         }
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
         tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
@@ -99,7 +103,7 @@ class CameraActivity : AppCompatActivity() {
                 tabUpdate(tab)
             }
             override fun onTabReselected(tab: TabLayout.Tab?) {
-                if (currentTab == 2) {
+                if (currentTab == 3) {
                     Log.i(TAG, "onTabReselected")
                     disableTabs()
                     tabUpdate(tab)
@@ -109,9 +113,28 @@ class CameraActivity : AppCompatActivity() {
         })
     }
 
-    fun switchToLaunchFragment() {
+    private fun updateTabVisibility(isLpmEnabled: Boolean) {
+        val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
+        tabLayout?.let {
+            val videoTab = it.getTabAt(0)
+            val multiCamTab = it.getTabAt(1)
+            val lpmTab = it.getTabAt(2)
+            val settingsTab = it.getTabAt(3)
+            if (isLpmEnabled) {
+                lpmTab?.view?.visibility = View.VISIBLE
+                videoTab?.view?.visibility = View.GONE
+                multiCamTab?.view?.visibility = View.GONE
+            } else {
+                lpmTab?.view?.visibility = View.GONE
+                videoTab?.view?.visibility = View.VISIBLE
+                multiCamTab?.view?.visibility = View.VISIBLE
+            }
+        }
+    }
+
+    fun switchToLaunchFragment(isLpmEnabled: Boolean) {
         Log.i(TAG, "switchToLaunchFragment")
-        if (PermissionsFragment.hasPermissions(applicationContext)) {
+        if (PermissionsFragment.hasPermissions(applicationContext) && !isLpmEnabled) {
             if (PreferenceManager.getDefaultSharedPreferences(this).getString("camera_fps", null) == null) {
                 supportFragmentManager.commit {
                     Log.i(TAG, "replace<CameraFragmentSettings>")
@@ -123,7 +146,16 @@ class CameraActivity : AppCompatActivity() {
                 Log.i(TAG, "replace<CameraFragmentVideo>")
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
             }
+            enableTabs()
             currentTab = 0
+        } else if (PermissionsFragment.hasPermissions(applicationContext) && isLpmEnabled) {
+            disableTabs()
+            supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentLPM>")
+                replace<CameraFragmentLPM>(R.id.fragment_container, null, null)
+            }
+            enableTabs()
+            currentTab = 2
         } else {
             supportFragmentManager.commit {
                 Log.i(TAG, "replace<PermissionsFragment>")
@@ -131,6 +163,7 @@ class CameraActivity : AppCompatActivity() {
             }
         }
     }
+
     fun enableTabs() {
         Log.i(TAG, "enableTabs")
         val tabLayout = findViewById<TabLayout>(R.id.tabs_menu)
@@ -157,17 +190,27 @@ class CameraActivity : AppCompatActivity() {
                 replace<CameraFragmentVideo>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 0
                 currentTab = 0
+                enableTabs()
             }
             1 -> supportFragmentManager.commit {
                 Log.i(TAG, "replace<CameraFragmentMultiCam>")
                 replace<CameraFragmentMultiCam>(R.id.fragment_container, null, null)
                 lastNonSettingTab = 1
                 currentTab = 1
+                enableTabs()
             }
             2 -> supportFragmentManager.commit {
+                Log.i(TAG, "replace<CameraFragmentLPM>")
+                replace<CameraFragmentLPM>(R.id.fragment_container, null, null)
+                lastNonSettingTab = 2
+                currentTab = 2
+                enableTabs()
+            }
+            3 -> supportFragmentManager.commit {
                 Log.i(TAG, "replace<CameraFragmentSettings>")
                 replace<CameraFragmentSettings>(R.id.fragment_container, null, null)
-                currentTab = 2
+                currentTab = 3
+                enableTabs()
             }
         }
     }
