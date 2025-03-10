@@ -1,5 +1,5 @@
 <!--
-~ Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+~ Copyright (c) 2023, 2025 Qualcomm Innovation Center, Inc. All rights reserved.
 ~ SPDX-License-Identifier: BSD-3-Clause-Clear
 -->
 <resources>
@@ -15,6 +15,7 @@
     <string name="reset_app_preference_header">Reset App Preference</string>
     <string name="framing_mode_title">Framing Mode</string>
     <string name="framing_mode_description">group - show all person in front of camera; speaker - Track dominant speaker or show all person which attempt in conversation; people - tiled view mode with each person in a separate window; presenter - Track presenter</string>
+    <string name="group_people_framing_description">Enable Group Framing along with People Framing</string>
     <string name="reset_app_preference_title">Reset App</string>
     <string name="tuning_parameters">Tuning Parameters</string>
     <string name="gpu_transform_draw_debug">Draw AI bounding boxes</string>
@@ -215,4 +216,5 @@
     <string name="layout_file">Layout File</string>
     <string name="layout_file_hint">Type: String</string>
     <string name="layout_file_description">File which describe tiles size in people framing for any count</string>
+    <string name="group_people_framing">Enable Group People Framing</string>
 </resources>

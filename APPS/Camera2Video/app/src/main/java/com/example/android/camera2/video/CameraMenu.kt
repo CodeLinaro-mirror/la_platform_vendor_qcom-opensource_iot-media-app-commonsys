@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -35,15 +35,68 @@
 package com.example.android.camera2.video
 
 import android.content.Context
-import android.hardware.camera2.CameraMetadata
+import android.app.AlertDialog
+import android.util.Log
+import android.view.KeyEvent
+import android.view.MenuItem
 import android.view.View
 import android.widget.PopupMenu
 import android.widget.TextView
+import android.widget.EditText
+import android.widget.Toast
+import android.text.InputType
+import android.hardware.camera2.CameraMetadata
+import androidx.preference.PreferenceManager
 
-class CameraMenu(context: Context?, view: View) {
+
+class CameraMenu(val context: Context?, view: View) {
     private val popupAnchor = view.findViewById<TextView>(R.id.popup_anchor)
     private val popup = PopupMenu(context, popupAnchor)
     private var cameraMenuListener: OnCameraMenuListener? = null
+    private var lpmTimeoutListener: OnLPMTimeoutListener? = null
+
+private fun showTimeoutInputDialog() {
+    context?.let { ctx ->
+        val builder = AlertDialog.Builder(ctx)
+        builder.setTitle("Enter Timeout Value")
+        val input = EditText(ctx)
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
+
+        // Retrieve the last entered value from shared preferences
+        val sharedPreferences = ctx.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val lastTimeoutValue = sharedPreferences.getInt("timeout_value", -1)
+        if (lastTimeoutValue != -1) {
+            input.setText(lastTimeoutValue.toString())
+        }
+
+        builder.setView(input)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val value = input.text.toString().toIntOrNull()
+            if (value != null) {
+                setTimeoutValue(value)
+            } else {
+                Toast.makeText(ctx, "Invalid input", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+
+        val dialog = builder.create()
+
+        // Set an OnKeyListener to detect Enter key press
+        input.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                true
+            } else {
+                false
+            }
+        }
+
+        dialog.show()
+    } ?: run {
+        Log.e("CameraMenu", "Context is null")
+    }
+}
 
     interface OnCameraMenuListener {
         fun onAELock(value: Boolean)
@@ -66,12 +119,49 @@ class CameraMenu(context: Context?, view: View) {
         fun onSharpnessLevel(value: Int)
     }
 
+    interface OnLPMTimeoutListener {
+        fun onLPMTimeoutValue(value: Int)
+    }
+
     fun setOnCameraMenuListener(listener: OnCameraMenuListener) {
         cameraMenuListener = listener
     }
 
+    fun setOnLPMTimeoutListener(listener: OnLPMTimeoutListener) {
+        lpmTimeoutListener = listener
+    }
+
+    private fun setTimeoutValue(value: Int) {
+        val sharedPreferences = context?.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        sharedPreferences?.edit()?.putInt("timeout_value", value)?.apply()
+        lpmTimeoutListener?.onLPMTimeoutValue(value)
+    }
+
+    private fun adjustMenuItems() {
+        val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val isLpmEnabled = sharedPreferences.getBoolean("lpm_enable", false)
+        popup.menu.clear()
+        if (isLpmEnabled) {
+            popup.menu.add(0, R.id.lpm_timeout_value, 0, "LPM Timeout")
+        } else {
+            popup.inflate(R.menu.camera_menu)
+            popup.menu.removeItem(R.id.lpm_timeout_value)
+        }
+    }
+
+    fun clearTimeoutInput() {
+        context?.let { ctx ->
+            val sharedPreferences = ctx.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+            sharedPreferences.edit().remove("timeout_value").apply()
+            val input = EditText(ctx)
+            input.setText("")
+        } ?: run {
+            Log.e("CameraMenu", "Context is null")
+        }
+    }
+
     init {
-        popup.inflate(R.menu.camera_menu)
+        adjustMenuItems()
         popup.setOnMenuItemClickListener { item ->
             when (item.itemId) {
                 R.id.ae_lock -> {
@@ -434,6 +524,10 @@ class CameraMenu(context: Context?, view: View) {
                     cameraMenuListener?.onSharpnessLevel(6)
                     true
                 }
+                R.id.lpm_timeout_value -> {
+                    showTimeoutInputDialog()
+                    true
+                }
                 else -> false
             }
         }
@@ -441,5 +535,9 @@ class CameraMenu(context: Context?, view: View) {
 
     fun show() {
         popup.show()
+    }
+
+    fun hide() {
+        popup.dismiss()
     }
 }

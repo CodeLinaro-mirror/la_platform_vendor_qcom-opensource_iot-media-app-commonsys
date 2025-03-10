@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+# Copyright (c) 2023, 2025 Qualcomm Innovation Center, Inc. All rights reserved.
 # SPDX-License-Identifier: BSD-3-Clause-Clear
 */
 
@@ -67,6 +67,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
     void updatePreference() {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
         ListPreference framing_mode = mPrefScreen.findPreference("framing_mode");
+        ListPreference group_people_framing_mode = mPrefScreen.findPreference("group_people_framing");
         ListPreference gpu_transform_draw_debug = mPrefScreen.findPreference("gpu_transform_draw_debug");
         ListPreference gpu_transform_enable_crop = mPrefScreen.findPreference("gpu_transform_enable_crop");
         ListPreference csv_logging_enable = mPrefScreen.findPreference("csv_logging_enable");
@@ -152,6 +153,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if (framing_mode_value.equals("PeopleFraming")) {
             framing_mode_value_final = "people";
         }
+
         String gpu_transform_draw_debug_value = pref.getString("gpu_transform_draw_debug", "Disable");
         String gpu_transform_draw_debug_value_final = "0";
         if (gpu_transform_draw_debug_value.equals("Enable")) {
@@ -416,6 +418,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
         if (nms_threshold.isVisible()) {
             nms_threshold.setVisible(false);
         }
+        if (group_people_framing_mode.isVisible()) {
+            group_people_framing_mode.setVisible(false);
+        }
 
         try {
             @SuppressWarnings("rawtypes")
@@ -442,6 +447,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!nms_threshold.isVisible()) {
                 nms_threshold.setVisible(true);
+            }
+            if (group_people_framing_mode.isVisible()) {
+                group_people_framing_mode.setVisible(false);
             }
             autoframing_filter_size.setDefaultValue("240");
             autoframing_filter_size.setSummary("240");
@@ -672,6 +680,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!nms_threshold.isVisible()) {
                 nms_threshold.setVisible(true);
+            }
+            if (group_people_framing_mode.isVisible()) {
+                group_people_framing_mode.setVisible(false);
             }
 
             autoframing_filter_size.setDefaultValue("120");
@@ -1061,6 +1072,17 @@ public class SettingsFragment extends PreferenceFragmentCompat
             if (nms_threshold.isVisible()) {
                 nms_threshold.setVisible(false);
             }
+            if (!group_people_framing_mode.isVisible()) {
+                group_people_framing_mode.setVisible(true);
+            }
+
+            String group_people_framing_mode_value = pref.getString("group_people_framing", "Disable");
+            String group_people_framing_mode_value_final = "false";
+            if (group_people_framing_mode_value.equals("Disable")) {
+                group_people_framing_mode_value_final = "false";
+            } else {
+                group_people_framing_mode_value_final = "true";
+            }
 
             autoframing_filter_size.setDefaultValue("120");
             autoframing_filter_size.setSummary("120");
@@ -1191,6 +1213,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
                 }
                 set.invoke(SystemProperties, "persist.vendor.ai-director.grid_manager.layout_file", layout_file_value);
                 set.invoke(SystemProperties, "persist.vendor.ai-director.people.postprocess_yolov5.output_layers", output_layers_value);
+                set.invoke(SystemProperties, "persist.vendor.ai-director.people.group_enable", group_people_framing_mode_value_final);
 
             } catch (IllegalArgumentException iAE) {
                 throw iAE;
@@ -1213,6 +1236,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
             }
             if (!nms_threshold.isVisible()) {
                 nms_threshold.setVisible(true);
+            }
+            if (group_people_framing_mode.isVisible()) {
+                group_people_framing_mode.setVisible(false);
             }
 
             autoframing_filter_size.setDefaultValue("240");

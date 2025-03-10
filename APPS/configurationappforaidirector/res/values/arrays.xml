@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+~ Copyright (c) 2023, 2025 Qualcomm Innovation Center, Inc. All rights reserved.
 ~ SPDX-License-Identifier: BSD-3-Clause-Clear
 -->
 <resources>
@@ -81,6 +81,11 @@
     <string-array name="reset_app_values">
         <item>Yes</item>
         <item>No</item>
+    </string-array>
+
+    <string-array name="group_people_framing">
+        <item>Enable</item>
+        <item>Disable</item>
     </string-array>
 
 </resources>
