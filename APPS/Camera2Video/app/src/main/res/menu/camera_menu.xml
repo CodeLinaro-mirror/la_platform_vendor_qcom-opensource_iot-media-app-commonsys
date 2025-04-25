@@ -313,9 +313,18 @@
     </item>
 
     <item
+        android:id="@+id/iso_select_priotiy"
+        android:title="Manual P-Iris Select Priority" />
+
+    <item
+        android:id="@+id/iso_exp_f_number"
+        android:title="Manual P-Iris Fnumber" />
+
+    <item
+        android:id="@+id/iso_exp_max_exposure_time"
+        android:title="Manual P-Iris Max Exposure Time" />
+
+    <item
         android:id="@+id/lpm_timeout_value"
         android:title="LPM Timeout Value" />
 </menu>
-
-
-
