@@ -110,6 +110,10 @@ object VendorTagUtil {
     private val SHARPNESS_LEVEL_KEY = CaptureRequest.Key("org.codeaurora.qcamera3.sharpness.strength", Int::class.java)
     private val SHDR_TYPE_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sessionParameters.SWSHDRType", Int::class.java)
     private val LPM_TIMEOUT_VALUE = CaptureRequest.Key("org.codeaurora.qcamera3.sensorwriteinput.CameraStandbyTimeout", Int::class.java)
+    private val F_NUMBER = CaptureRequest.Key("org.codeaurora.qcamera3.iso_exp_priority.fnumber",
+            Float::class.java)
+    private val MAX_EXPOSURE_TIME = CaptureRequest.Key("org.codeaurora.qcamera3.iso_exp_priority.max_exposure_time",
+            Long::class.java)
 
     private const val MANUAL_WB_DISABLE_MODE = 0
     private const val MANUAL_WB_CCT_MODE = 1
@@ -183,6 +187,28 @@ object VendorTagUtil {
 
     private fun isIsoExpPrioritySelectPrioritySupported(builder: CaptureRequest.Builder): Boolean {
         return isSupported(builder, SELECT_PRIORITY)
+    }
+
+    fun setIsoExpPriorityFNumber(builder: CaptureRequest.Builder,
+                                        value: Float) {
+        if (isIsoExpPriorityFNumberSupported(builder)) {
+            builder.set(F_NUMBER, value)
+        }
+    }
+
+    private fun isIsoExpPriorityFNumberSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, F_NUMBER)
+    }
+
+    fun setIsoExpPriorityMaxExposureTime(builder: CaptureRequest.Builder,
+                                        value: Long) {
+        if (isIsoExpPriorityMaxExposureTimeSupported(builder)) {
+            builder.set(MAX_EXPOSURE_TIME, value)
+        }
+    }
+
+    private fun isIsoExpPriorityMaxExposureTimeSupported(builder: CaptureRequest.Builder): Boolean {
+        return isSupported(builder, MAX_EXPOSURE_TIME)
     }
 
     fun setIsoExpPriority(builder: CaptureRequest.Builder, value: Long) {
