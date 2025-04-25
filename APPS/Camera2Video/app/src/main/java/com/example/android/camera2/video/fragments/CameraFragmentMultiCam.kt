@@ -286,6 +286,24 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
                 cameraBase1.setSharpnessLevel(value)
                 Log.d(TAG, "Sharpness Level: $value")
             }
+
+            override fun onIsoExpSelectPriority(value: Int) {
+                cameraBase0.setISOSelectPriority(value)
+                cameraBase1.setISOSelectPriority(value)
+                Log.d(TAG, "Iso Exp Select Priority: $value")
+            }
+
+            override fun onIsoExpFNumber(value: Float) {
+                cameraBase0.setIsoExpFNumber(value)
+                cameraBase1.setIsoExpFNumber(value)
+                Log.d(TAG, "Iso Exp F number: $value")
+            }
+
+            override fun onIsoExpMaxExposureTime(value: Long) {
+                cameraBase0.setIsoExpMaxExposureTime(value)
+                cameraBase1.setIsoExpMaxExposureTime(value)
+                Log.d(TAG, "Iso Exp Max Exposure Time: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()
