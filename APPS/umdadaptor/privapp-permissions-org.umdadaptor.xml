@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+   ~ Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+   ~ SPDX-License-Identifier: BSD-3-Clause-Clear
+   -->
+
+<permissions>
+     <privapp-permissions package="org.codeaurora.umdadaptor">
+         <permission name="android.permission.FOREGROUND_SERVICE" />
+         <permission name="android.permission.RECORD_AUDIO" />
+         <permission name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+         <permission name="android.permission.CAPTURE_AUDIO_HOTWORD" />
+         <permission name="android.permission.CAPTURE_AUDIO_OUTPUT" />
+         <permission name="android.permission.CAPTURE_MEDIA_OUTPUT" />
+         <permission name="android.permission.CAPTURE_TUNER_AUDIO_INPUT" />
+         <permission name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />
+     </privapp-permissions>
+ </permissions>
