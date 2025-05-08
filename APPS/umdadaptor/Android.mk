@@ -24,4 +24,4 @@ LOCAL_PRIVATE_PLATFORM_APIS := true
 LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umd-V1.0-java
 LOCAL_SYSTEM_EXT_MODULE:= true
 
-#include $(BUILD_PACKAGE)
+include $(BUILD_PACKAGE)
