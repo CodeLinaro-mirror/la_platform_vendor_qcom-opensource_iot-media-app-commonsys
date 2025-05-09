@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2020-2021 Qualcomm Innovation Center, Inc.
+~ Copyright (c) 2020-2021, 2025 Qualcomm Innovation Center, Inc.
 ~
 ~ Redistribution and use in source and binary forms, with or without
 ~ modification, are permitted (subject to the limitations in the
@@ -311,6 +311,10 @@
             </group>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/lpm_timeout_value"
+        android:title="LPM Timeout Value" />
 </menu>
 
 
