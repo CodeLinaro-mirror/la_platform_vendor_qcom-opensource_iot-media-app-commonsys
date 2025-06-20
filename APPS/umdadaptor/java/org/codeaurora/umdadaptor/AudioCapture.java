@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -19,9 +19,6 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import android.os.Process;
 
-import vendor.qti.hardware.umd.V1_0.IUMDAdaptor;
-import vendor.qti.hardware.umd.V1_0.IUMDAdaptorCallback;
-
 public class AudioCapture {
 
     private static final String TAG = "AudioCapture";
@@ -40,19 +37,13 @@ public class AudioCapture {
     ArrayBlockingQueue<ArrayList<Byte>> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE);
     AtomicBoolean mIsAudioTrackThreadRunning = new AtomicBoolean(false);
     private AudioTrack mAudioTrack = null;
-    private vendor.qti.hardware.umd.V1_0.IUMDAdaptor mUMDAdaptorHidl = null;
-    private vendor.qti.hardware.umdservice.IUMDAdaptor mUMDAdaptorAidl = null;
     Semaphore mAudioSemaphore = new Semaphore(1);
-    IUMDAdaptor mUMDAdaptor;
+    private UMDInterface captureServer = null;
 
-    public AudioCapture(Context context, vendor.qti.hardware.umd.V1_0.IUMDAdaptor umdadaptor) {
+    public AudioCapture(Context context, UMDInterface umdServer) {
+        Log.d(TAG,"AudioCapture constructor");
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mUMDAdaptorHidl = umdadaptor;
-    }
-
-    public AudioCapture(Context context, vendor.qti.hardware.umdservice.IUMDAdaptor umdadaptor) {
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mUMDAdaptorAidl = umdadaptor;
+        captureServer = umdServer;
     }
 
     public void audioCapture(ArrayList<Byte> data) {

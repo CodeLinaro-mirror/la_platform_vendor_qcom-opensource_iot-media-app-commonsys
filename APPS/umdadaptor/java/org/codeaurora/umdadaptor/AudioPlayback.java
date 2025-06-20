@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
  * SPDX-License-Identifier: BSD-3-Clause-Clear
  */
 
@@ -22,8 +22,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import vendor.qti.hardware.umd.V1_0.IUMDAdaptor;
-
 public class AudioPlayback {
 
     private static final String TAG = "AudioPlayBack";
@@ -42,36 +40,15 @@ public class AudioPlayback {
     AudioDeviceInfo mAudioDevice = null;
     private Thread mRecordThread = null;
     private Thread mAudioSubmitThread = null;
-    private vendor.qti.hardware.umd.V1_0.IUMDAdaptor mUMDAdaptorHidl = null;
-    private vendor.qti.hardware.umdservice.IUMDAdaptor mUMDAdaptorAidl = null;
     ArrayBlockingQueue<byte[]> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE);
     AtomicBoolean mIsAudioRecordThreadRunning = new AtomicBoolean(false);
     AtomicBoolean mIsAudioSubmitThreadRunning = new AtomicBoolean(false);
     Semaphore mAudioSemaphore = new Semaphore(2);
-    IUMDAdaptor mUMDAdaptor;
+    private UMDInterface playbackServer = null;
 
-    public AudioPlayback(Context context, vendor.qti.hardware.umd.V1_0.IUMDAdaptor umdadaptor) {
+    public AudioPlayback(Context context, UMDInterface umdServer) {
+        Log.d(TAG,"AudioPlayback object");
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mUMDAdaptorHidl = umdadaptor;
-        AudioBufferBytes();
-        try {
-            mUMDAdaptorHidl.setAudioBufferSize(mAudioBufferBytes);
-        } catch (RemoteException e) {
-            Log.i(TAG, "Remote Exception");
-        }
-    }
-    public AudioPlayback(Context context, vendor.qti.hardware.umdservice.IUMDAdaptor umdadaptor) {
-        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mUMDAdaptorAidl = umdadaptor;
-        AudioBufferBytes();
-        try {
-            mUMDAdaptorAidl.setAudioBufferSize(mAudioBufferBytes);
-        } catch (RemoteException e) {
-            Log.i(TAG, "Remote Exception");
-        }
-    }
-
-    private void AudioBufferBytes () {
         mAudioSampleRate = Integer.parseInt(
                 SystemProperties.get(PLAYBACK_SAMPLE_RATE_PROP, DEFAULT_SAMPLE_RATE));
 
@@ -86,6 +63,9 @@ public class AudioPlayback {
         mAudioBufferBytes = AudioRecord.getMinBufferSize(mAudioSampleRate,
                 mRecorderChannels,
                 mRecorderAudioEncoding);
+
+        playbackServer = umdServer;
+        playbackServer.setAudioBufferSize(mAudioBufferBytes);
     }
 
     private ArrayList<Byte> toByteArray(@NonNull byte[] data, int offset, int length) {
@@ -149,15 +129,7 @@ public class AudioPlayback {
                                 continue;
                             }
                             ArrayList<Byte> data = toByteArray(bData, 0, bData.length);
-                            try {
-                                if (mUMDAdaptorAidl != null) {
-                                    mUMDAdaptorAidl.submitAudioBuffer(bData);
-                                } else {
-                                    mUMDAdaptorHidl.submitAudioBuffer(data);
-                                }
-                            } catch (RemoteException e) {
-                                Log.i(TAG, "Remote Exception in Audio Submit thread");
-                            }
+                            playbackServer.submitAudioBuffer(data);
                         }
                         Log.v(TAG, "mAudioSubmitThread exit");
                     }

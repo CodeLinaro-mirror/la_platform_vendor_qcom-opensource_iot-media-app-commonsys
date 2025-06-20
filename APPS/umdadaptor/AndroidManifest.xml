@@ -4,6 +4,7 @@
    ~ SPDX-License-Identifier: BSD-3-Clause-Clear
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.codeaurora.umdadaptor">
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"></uses-permission>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
@@ -35,6 +36,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:node="replace" />
     </application>
 
 </manifest>
