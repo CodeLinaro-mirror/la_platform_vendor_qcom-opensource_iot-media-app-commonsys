@@ -25,9 +25,10 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-# Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc.
+#
+# Changes from Qualcomm Technologies, Inc. are provided under the following license:
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -65,9 +66,13 @@ package org.codeaurora.qmedia;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
@@ -96,6 +101,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 
+import java.io.ByteArrayOutputStream;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -177,12 +184,13 @@ public class CameraBase {
     private final ArrayBlockingQueue<Image> mYuvImageQueue = new ArrayBlockingQueue<Image>(8);
     private TotalCaptureResult mLastTotalCaptureResult;
     private Thread mCameraReprocThread;
+    private HandlerThread mImageUpdateThread;
+    private Handler mImageUpdateHandler;
     private ImageView mImageView;
     private int mImageWidth;
     private int mImageHeight;
     private int mReprocWidth;
     private int mReprocHeight;
-    private Bitmap mImageViewBitmap = null;
     private int[] mROIDataSetOne;
     private int[] mROIDataSetTwo;
     private int mFrameNumber = 0;
@@ -195,6 +203,8 @@ public class CameraBase {
     private Rect mRectParams;
     private int mDisplayID;
     private Byte mMLInfEnable;
+    private final ByteArrayOutputStream mJpegOutputStream = new ByteArrayOutputStream();
+    private byte[] mNV21Buffer = null;
 
     public CameraBase(Context context, CameraDisconnectedListener cameraDisconnectedListener) {
         mCameraContext = context;
@@ -341,6 +351,9 @@ public class CameraBase {
             mImageListenerThread = new HandlerThread("ImageThread");
             mImageListenerThread.start();
             mImageListenerHandler = new Handler(mImageListenerThread.getLooper());
+            mImageUpdateThread = new HandlerThread("ImageUpdateThread");
+            mImageUpdateThread.start();
+            mImageUpdateHandler = new Handler(mImageUpdateThread.getLooper());
         }
         Log.v(TAG, "startBackgroundThread exit");
     }
@@ -368,8 +381,73 @@ public class CameraBase {
                 mYUVImageReader.close();
                 mYUVImageReader = null;
             }
+            mImageUpdateThread.quitSafely();
+            try {
+                mImageUpdateThread.join();
+                mImageUpdateThread = null;
+                mImageUpdateHandler = null;
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
         Log.v(TAG, "stopBackgroundThread exit");
+    }
+
+    public void yuv420888ToNv21(Image image, byte[] outputBuffer) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        ByteBuffer yBuffer = image.getPlanes()[0].getBuffer();
+        ByteBuffer uBuffer = image.getPlanes()[1].getBuffer();
+        ByteBuffer vBuffer = image.getPlanes()[2].getBuffer();
+
+        int yRowStride = image.getPlanes()[0].getRowStride();
+        int uvRowStride = image.getPlanes()[1].getRowStride();
+        int uvPixelStride = image.getPlanes()[1].getPixelStride();
+
+        int pos = 0;
+
+        // Copy Y plane
+        for (int row = 0; row < height; row++) {
+            yBuffer.position(row * yRowStride);
+            yBuffer.get(outputBuffer, pos, width);
+            pos += width;
+        }
+
+        // Copy UV planes (interleaved VU for NV21)
+        int uvHeight = height / 2;
+        for (int row = 0; row < uvHeight; row++) {
+            for (int col = 0; col < width / 2; col++) {
+                int uIndex = row * uvRowStride + col * uvPixelStride;
+                int vIndex = row * uvRowStride + col * uvPixelStride;
+
+                outputBuffer[pos++] = vBuffer.get(vIndex); // V
+                outputBuffer[pos++] = uBuffer.get(uIndex); // U
+            }
+        }
+    }
+
+    public Bitmap yuvToBitmap(Image image) {
+        if (image == null) return null;
+
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int bufferSize = width * height * 3 / 2;
+
+        // Reuse NV21 buffer
+        if (mNV21Buffer == null || mNV21Buffer.length < bufferSize) {
+            mNV21Buffer = new byte[bufferSize];
+        }
+
+        yuv420888ToNv21(image, mNV21Buffer);
+
+        // Reuse ByteArrayOutputStream
+        mJpegOutputStream.reset();
+        YuvImage yuvImage = new YuvImage(mNV21Buffer, ImageFormat.NV21, width, height, null);
+        yuvImage.compressToJpeg(new Rect(0, 0, width, height), 90, mJpegOutputStream);
+        byte[] jpegBytes = mJpegOutputStream.toByteArray();
+
+        return BitmapFactory.decodeByteArray(jpegBytes, 0, jpegBytes.length);
     }
 
     @SuppressLint("MissingPermission")
@@ -397,7 +475,6 @@ public class CameraBase {
             manager.openCamera(id, mStateCallback, mBackgroundHandler);
             mCameraOpenCloseLock.tryAcquire(2500, TimeUnit.MILLISECONDS);
             if (mEnableReproc) {
-                mImageViewBitmap = Bitmap.createBitmap(mImageWidth, mImageHeight, Bitmap.Config.ARGB_8888);
                 mCameraReprocThread = new CameraReprocThread();
                 mCameraIsRunning.set(true);
                 mCameraReprocThread.start();
@@ -427,7 +504,6 @@ public class CameraBase {
                 e.printStackTrace();
             }
             mCameraReprocThread = null;
-            mImageViewBitmap = null;
         }
         // Clear the surface
         if (mStreamSurfaceHolder != null) {
@@ -643,11 +719,33 @@ public class CameraBase {
             mYuvImageQueue.clear();
             while (mCameraIsRunning.get()) {
                 if (!mYuvImageQueue.isEmpty()) {
-                    PixelCopy.request(mYUVImageReader.getSurface(), mImageViewBitmap, i -> {
-                        mImageView.setImageBitmap(mImageViewBitmap);
-                    }, new Handler(Looper.getMainLooper()));
+
                     Image img = mYuvImageQueue.remove();
+                    if (img == null || img.getFormat() != ImageFormat.YUV_420_888) {
+                        Log.e(TAG, "Invalid image format or null image");
+                        return;
+                    }
+
+                    Bitmap bitmap = yuvToBitmap(img);
+                    if (bitmap == null) {
+                        Log.e(TAG, "Bitmap conversion failed");
+                        return;
+                    }
+
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Drawable drawable = mImageView.getDrawable();
+                        if (drawable instanceof BitmapDrawable) {
+                            Bitmap oldBitmap = ((BitmapDrawable) drawable).getBitmap();
+                            if (oldBitmap != null && !oldBitmap.isRecycled()) {
+                                oldBitmap.recycle();
+                            }
+                        }
+                        mImageView.setImageDrawable(null);
+                        mImageView.setImageBitmap(bitmap);
+                    });
+
                     mImageWriter.queueInputImage(img);
+
                     try {
                         CaptureRequest.Builder builder =
                                 mCameraDevice
