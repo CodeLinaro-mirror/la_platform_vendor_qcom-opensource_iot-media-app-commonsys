@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020 - 2022, 2024 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2024-2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -651,6 +651,17 @@ class CameraBase(val context: Context): CameraModule {
             captureRequest.set(CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION, exposureValue)
         }
 
+        VendorTagUtil.setIsoExpPriorityMaxExposureTime(previewRequest, 0)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriorityMaxExposureTime(captureRequest, 0)
+        }
+
+        VendorTagUtil.setIsoExpPriorityFNumber(previewRequest, 0.0f)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriorityFNumber(captureRequest, 0.0f)
+        }
+
+
     }
 
     override fun setSHDRValue(value: Int) {
@@ -775,6 +786,33 @@ override fun setEISOpmodeValue(value: Int) {
             VendorTagUtil.setIsoExpPriority(captureRequest, value)
         }
 
+        updateRepeatingRequest()
+    }
+
+    override fun setISOSelectPriority(value: Int) {
+        Log.d(TAG, "ISO Select priority: $value")
+        VendorTagUtil.setIsoExpPrioritySelectPriority(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPrioritySelectPriority(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setIsoExpFNumber(value: Float) {
+        Log.d(TAG, "Iso exp priority F number: $value")
+        VendorTagUtil.setIsoExpPriorityFNumber(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriorityFNumber(captureRequest, value)
+        }
+        updateRepeatingRequest()
+    }
+
+    override fun setIsoExpMaxExposureTime(value: Long) {
+        Log.d(TAG, "Iso exp priority Max Exposure Time: $value")
+        VendorTagUtil.setIsoExpPriorityMaxExposureTime(previewRequest, value)
+        if (::captureRequest.isInitialized) {
+            VendorTagUtil.setIsoExpPriorityMaxExposureTime(captureRequest, value)
+        }
         updateRepeatingRequest()
     }
 
