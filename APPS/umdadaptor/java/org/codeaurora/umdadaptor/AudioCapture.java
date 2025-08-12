@@ -40,12 +40,19 @@ public class AudioCapture {
     ArrayBlockingQueue<ArrayList<Byte>> mAudioQueue = new ArrayBlockingQueue<>(AUDIO_QUEUE_SIZE);
     AtomicBoolean mIsAudioTrackThreadRunning = new AtomicBoolean(false);
     private AudioTrack mAudioTrack = null;
+    private vendor.qti.hardware.umd.V1_0.IUMDAdaptor mUMDAdaptorHidl = null;
+    private vendor.qti.hardware.umdservice.IUMDAdaptor mUMDAdaptorAidl = null;
     Semaphore mAudioSemaphore = new Semaphore(1);
     IUMDAdaptor mUMDAdaptor;
 
-    public AudioCapture(Context context, IUMDAdaptor umdadaptor) {
+    public AudioCapture(Context context, vendor.qti.hardware.umd.V1_0.IUMDAdaptor umdadaptor) {
         mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        mUMDAdaptor = umdadaptor;
+        mUMDAdaptorHidl = umdadaptor;
+    }
+
+    public AudioCapture(Context context, vendor.qti.hardware.umdservice.IUMDAdaptor umdadaptor) {
+        mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        mUMDAdaptorAidl = umdadaptor;
     }
 
     public void audioCapture(ArrayList<Byte> data) {
