@@ -240,6 +240,21 @@ class CameraFragmentVideo : Fragment(),CameraReadyListener {
                 cameraBase.setSharpnessLevel(value)
                 Log.d(TAG, "Sharpness Level: $value")
             }
+
+            override fun onIsoExpSelectPriority(value: Int) {
+                cameraBase.setISOSelectPriority(value)
+                Log.d(TAG, "Iso Exp Select Priority: $value")
+            }
+
+            override fun onIsoExpFNumber(value: Float) {
+                cameraBase.setIsoExpFNumber(value)
+                Log.d(TAG, "Iso Exp F number: $value")
+            }
+
+            override fun onIsoExpMaxExposureTime(value: Long) {
+                cameraBase.setIsoExpMaxExposureTime(value)
+                Log.d(TAG, "Iso Exp Max Exposure Time: $value")
+            }
         })
         view.setOnClickListener() {
             cameraMenu.show()
