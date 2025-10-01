@@ -1,18 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-~ Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
+~ Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
 ~ SPDX-License-Identifier: BSD-3-Clause-Clear
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.codeaurora.umdadaptor">
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"></uses-permission>
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
-    <uses-permission android:name="android.permission.CAPTURE_AUDIO_HOTWORD" />
-    <uses-permission android:name="android.permission.CAPTURE_AUDIO_OUTPUT" />
-    <uses-permission android:name="android.permission.CAPTURE_MEDIA_OUTPUT" />
-    <uses-permission android:name="android.permission.CAPTURE_TUNER_AUDIO_INPUT" />
-    <uses-permission android:name="android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT" />
+    <uses-permission android:name=
+        "android.permission.FOREGROUND_SERVICE_MICROPHONE"
+        android:minSdkVersion="34" />
+    <uses-permission android:name=
+        "android.permission.CAPTURE_AUDIO_HOTWORD"
+        android:minSdkVersion="34" />
+    <uses-permission android:name=
+        "android.permission.CAPTURE_AUDIO_OUTPUT"
+        android:minSdkVersion="34" />
+    <uses-permission android:name=
+        "android.permission.CAPTURE_MEDIA_OUTPUT"
+        android:minSdkVersion="34" />
+    <uses-permission android:name=
+        "android.permission.CAPTURE_TUNER_AUDIO_INPUT"
+        android:minSdkVersion="34" />
+    <uses-permission android:name=
+        "android.permission.CAPTURE_VOICE_COMMUNICATION_OUTPUT"
+        android:minSdkVersion="34" />
 
     <application
         android:allowBackup="false"
