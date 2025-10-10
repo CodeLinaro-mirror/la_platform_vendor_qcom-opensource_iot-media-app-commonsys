@@ -98,6 +98,133 @@ private fun showTimeoutInputDialog() {
     }
 }
 
+private fun showExposureTime(callback: (Long) -> Unit) {
+    context?.let { ctx ->
+        val builder = AlertDialog.Builder(ctx)
+        builder.setTitle("Enter Exposure Time Value")
+        val input = EditText(ctx)
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_SIGNED
+        // Retrieve the last entered value from shared preferences
+        val sharedPreferences = ctx.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val lastExposureTimeValue = sharedPreferences.getLong("exposure_time_value", 0L)
+        if (lastExposureTimeValue != 0L) {
+            input.setText(lastExposureTimeValue.toString())
+        }
+        builder.setView(input)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val value = input.text.toString().toLongOrNull()
+            if (value != null) {
+                // Save the value to shared preferences
+                val editor = sharedPreferences.edit()
+                editor.putLong("exposure_time_value", value)
+                editor.apply()
+                callback(value)
+            } else {
+                Toast.makeText(ctx, "Invalid input", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+        val dialog = builder.create()
+        // Set an OnKeyListener to detect Enter key press
+        input.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                true
+            } else {
+                false
+            }
+        }
+        dialog.show()
+    } ?: run {
+        Log.e("CameraMenu", "Context is null")
+    }
+}
+
+private fun showSelectPriority(callback: (Int) -> Unit) {
+    context?.let { ctx ->
+        val builder = AlertDialog.Builder(ctx)
+        builder.setTitle("Enter Priority Value")
+        val input = EditText(ctx)
+        input.inputType = InputType.TYPE_CLASS_NUMBER
+        // Retrieve the last entered value from shared preferences
+        val sharedPreferences = ctx.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val lastPriorityValue = sharedPreferences.getInt("priority_value", 0)
+        if (lastPriorityValue != 0) {
+            input.setText(lastPriorityValue.toString())
+        }
+        builder.setView(input)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val value = input.text.toString().toIntOrNull()
+            if (value != null) {
+                // Save the value to shared preferences
+                val editor = sharedPreferences.edit()
+                editor.putInt("priority_value", value)
+                editor.apply()
+                callback(value)
+            } else {
+                Toast.makeText(ctx, "Invalid input", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+        val dialog = builder.create()
+        // Set an OnKeyListener to detect Enter key press
+        input.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                true
+            } else {
+                false
+            }
+        }
+        dialog.show()
+    } ?: run {
+        Log.e("CameraMenu", "Context is null")
+    }
+}
+
+
+private fun showFnumber(callback: (Float) -> Unit) {
+    context?.let { ctx ->
+        val builder = AlertDialog.Builder(ctx)
+        builder.setTitle("Enter F-number Value")
+        val input = EditText(ctx)
+        input.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
+        // Retrieve the last entered value from shared preferences
+        val sharedPreferences = ctx.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+        val lastFnumberValue = sharedPreferences.getFloat("fnumber_value", 0.0f)
+        if (lastFnumberValue != 0.0f) {
+            input.setText(lastFnumberValue.toString())
+        }
+        builder.setView(input)
+        builder.setPositiveButton("OK") { dialog, which ->
+            val value = input.text.toString().toFloatOrNull()
+            if (value != null) {
+                // Save the value to shared preferences
+                val editor = sharedPreferences.edit()
+                editor.putFloat("fnumber_value", value)
+                editor.apply()
+                callback(value)
+            } else {
+                Toast.makeText(ctx, "Invalid input", Toast.LENGTH_SHORT).show()
+            }
+        }
+        builder.setNegativeButton("Cancel") { dialog, which -> dialog.cancel() }
+        val dialog = builder.create()
+        // Set an OnKeyListener to detect Enter key press
+        input.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).performClick()
+                true
+            } else {
+                false
+            }
+        }
+        dialog.show()
+    } ?: run {
+        Log.e("CameraMenu", "Context is null")
+    }
+}
+
     interface OnCameraMenuListener {
         fun onAELock(value: Boolean)
         fun onAWBLock(value: Boolean)
@@ -117,6 +244,9 @@ private fun showTimeoutInputDialog() {
         fun onLTMTable(value: Boolean): Boolean
         fun onSaturationLevel(value: Int)
         fun onSharpnessLevel(value: Int)
+        fun onIsoExpSelectPriority(value: Int)
+        fun onIsoExpFNumber(value: Float)
+        fun onIsoExpMaxExposureTime(value: Long)
     }
 
     interface OnLPMTimeoutListener {
@@ -526,6 +656,23 @@ private fun showTimeoutInputDialog() {
                 }
                 R.id.lpm_timeout_value -> {
                     showTimeoutInputDialog()
+                    true
+                }
+                R.id.iso_select_priotiy -> {
+                    showSelectPriority { value ->
+                    cameraMenuListener?.onIsoExpSelectPriority(value)}
+                    true
+                }
+                R.id.iso_exp_f_number -> {
+                    showFnumber { value ->
+                        cameraMenuListener?.onIsoExpFNumber(value)
+                    }
+                    true
+                }
+                R.id.iso_exp_max_exposure_time -> {
+                    showExposureTime { value ->
+                        cameraMenuListener?.onIsoExpMaxExposureTime(value)
+                    }
                     true
                 }
                 else -> false

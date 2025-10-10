@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2021, 2024 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2021, 2024-2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -121,4 +121,7 @@ interface CameraModule {
     fun setExposureValue(value: Int)
     fun setZSL(value: Boolean)
     fun setSHDRValue(value: Int)
+    fun setISOSelectPriority(value: Int)
+    fun setIsoExpFNumber(value:Float)
+    fun setIsoExpMaxExposureTime(value:Long)
 }

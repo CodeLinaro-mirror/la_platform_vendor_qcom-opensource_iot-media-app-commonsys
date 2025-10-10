@@ -1,5 +1,5 @@
 /*
-# Copyright (c) 2020-2022 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2020-2022, 2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -285,6 +285,24 @@ class CameraFragmentMultiCam : Fragment(),CameraReadyListener {
                 cameraBase0.setSharpnessLevel(value)
                 cameraBase1.setSharpnessLevel(value)
                 Log.d(TAG, "Sharpness Level: $value")
+            }
+
+            override fun onIsoExpSelectPriority(value: Int) {
+                cameraBase0.setISOSelectPriority(value)
+                cameraBase1.setISOSelectPriority(value)
+                Log.d(TAG, "Iso Exp Select Priority: $value")
+            }
+
+            override fun onIsoExpFNumber(value: Float) {
+                cameraBase0.setIsoExpFNumber(value)
+                cameraBase1.setIsoExpFNumber(value)
+                Log.d(TAG, "Iso Exp F number: $value")
+            }
+
+            override fun onIsoExpMaxExposureTime(value: Long) {
+                cameraBase0.setIsoExpMaxExposureTime(value)
+                cameraBase1.setIsoExpMaxExposureTime(value)
+                Log.d(TAG, "Iso Exp Max Exposure Time: $value")
             }
         })
         view.setOnClickListener() {
