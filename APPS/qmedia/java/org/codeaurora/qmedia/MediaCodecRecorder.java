@@ -27,7 +27,7 @@
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 # Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
+# Copyright (c) 2022-2023,2025 Qualcomm Innovation Center, Inc.
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted (subject to the limitations in the
@@ -381,7 +381,6 @@ public class MediaCodecRecorder {
         public void run() {
             Log.v(TAG, "VideoEncoderThread enter");
             mVideoEncoderRunning = true;
-            ByteBuffer[] encoderOutputBuffers = mVideoEncoder.getOutputBuffers();
             while (mVideoEncoderRunning) {
                 MediaCodec.BufferInfo bufferInfo = new MediaCodec.BufferInfo();
                 int encoderStatus = mVideoEncoder.dequeueOutputBuffer(bufferInfo, TIMEOUT_USEC);
@@ -415,7 +414,13 @@ public class MediaCodecRecorder {
                         break;
                     }
 
-                    ByteBuffer encodedData = encoderOutputBuffers[encoderStatus];
+                    ByteBuffer encodedData = mVideoEncoder.getOutputBuffer(encoderStatus);
+                    if (encodedData == null) {
+                        Log.e(TAG, "getOutputBuffer returned null for index: " + encoderStatus);
+                        mVideoEncoder.releaseOutputBuffer(encoderStatus, false);
+                        break;
+                    }
+
                     if ((bufferInfo.flags & MediaCodec.BUFFER_FLAG_CODEC_CONFIG) != 0) {
                         bufferInfo.size = 0;
                     }
@@ -425,14 +430,23 @@ public class MediaCodecRecorder {
                             mIsFirstTime = false;
                             Log.i(TAG, "First Video Frame received.");
                         }
-                        encodedData.position(bufferInfo.offset);
-                        encodedData.limit(bufferInfo.offset + bufferInfo.size);
-                        if (mIsAudioEnabled) {
-                            while (mPresentationTimeUs == -1L) {
+
+                        // Validate buffer bounds before setting position and limit
+                        if (bufferInfo.offset + bufferInfo.size <= encodedData.capacity()) {
+                            encodedData.position(bufferInfo.offset);
+                            encodedData.limit(bufferInfo.offset + bufferInfo.size);
+
+                            if (mIsAudioEnabled) {
+                                while (mPresentationTimeUs == -1L) {
+                                }
+                                bufferInfo.presentationTimeUs = mPresentationTimeUs;
                             }
-                            bufferInfo.presentationTimeUs = mPresentationTimeUs;
+                            mMuxer.writeSampleData(mVideoTrackIndex, encodedData, bufferInfo);
+                        } else {
+                            Log.e(TAG, "Buffer bounds validation failed: offset=" +
+                                  bufferInfo.offset + ", size=" + bufferInfo.size +
+                                  ", capacity=" + encodedData.capacity());
                         }
-                        mMuxer.writeSampleData(mVideoTrackIndex, encodedData, bufferInfo);
                     }
                     mVideoEncoder.releaseOutputBuffer(encoderStatus, false);
 
