@@ -25,4 +25,4 @@ LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umd-V1.0-java
 LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umdservice-V1-java
 LOCAL_SYSTEM_EXT_MODULE:= true
 
-include $(BUILD_PACKAGE)
+#include $(BUILD_PACKAGE)
