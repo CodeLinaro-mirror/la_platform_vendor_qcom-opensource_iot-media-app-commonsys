@@ -16,6 +16,7 @@ LOCAL_SRC_FILES += java/org/codeaurora/qmedia/PresentationBase.java
 LOCAL_SRC_FILES += java/org/codeaurora/qmedia/SettingsUtil.java
 LOCAL_SRC_FILES += java/org/codeaurora/qmedia/AudioAECNS.java
 
+LOCAL_SRC_FILES += java/org/codeaurora/qmedia/fragments/CameraConcurrencyFragment.java
 LOCAL_SRC_FILES += java/org/codeaurora/qmedia/fragments/HomeFragment.java
 LOCAL_SRC_FILES += java/org/codeaurora/qmedia/fragments/PermissionFragment.java
 LOCAL_SRC_FILES += java/org/codeaurora/qmedia/fragments/SettingsFragment.java
