@@ -25,39 +25,10 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
 # OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
 # IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-# Changes from Qualcomm Innovation Center are provided under the following license:
-# Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted (subject to the limitations in the
-# disclaimer below) provided that the following conditions are met:
-#
-#    * Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
-#
-#    * Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials provided
-#      with the distribution.
-#
-#    * Neither the name Qualcomm Innovation Center nor the names of its
-#      contributors may be used to endorse or promote products derived
-#      from this software without specific prior written permission.
-#
-# NO EXPRESS OR IMPLIED LICENSES TO ANY PARTY'S PATENT RIGHTS ARE
-# GRANTED BY THIS LICENSE. THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT
-# HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
-# WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
-# IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE
-# GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
-# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER
-# IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
-# OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN
-# IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+# ​​​​​Changes from Qualcomm Technologies, Inc. are provided under the following license: 
+# Copyright (c) Qualcomm Technologies, Inc. and/or its subsidiaries.
+# SPDX-License-Identifier: BSD-3-Clause-Clear
 */
 
 package org.codeaurora.qmedia.fragments;
@@ -78,6 +49,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.preference.EditTextPreference;
 import androidx.preference.ListPreference;
+import androidx.preference.MultiSelectListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
@@ -87,6 +59,8 @@ import androidx.preference.SwitchPreference;
 import org.codeaurora.qmedia.R;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -118,8 +92,140 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
         // Populate camera IDs
         populateCameraIDs();
+
+        setupCameraConcurrencyListeners();
+        initializeCameraConcurrencyDefaults();
+
         // Update Preference
         updatePreference();
+    }
+
+    private void initializeCameraConcurrencyDefaults() {
+        SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+
+        if (!prefs.contains("camera_concurrency_mode")) {
+            prefs.edit().putString("camera_concurrency_mode", "logical").apply();
+        }
+
+        if (!prefs.contains("cc_logical_camera_id")) {
+            prefs.edit().putString("cc_logical_camera_id", "0").apply();
+        }
+
+        updateCameraConcurrencyPreferences();
+
+        CameraManager cameraManager =
+                (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+        updateResolutionOptionsForSelectedCameras(cameraManager);
+    }
+
+    private void setupCameraConcurrencyListeners() {
+        SwitchPreference ccEnable = mPrefScreen.findPreference("camera_concurrency_enable");
+        if (ccEnable != null) {
+            ccEnable.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+                prefs.edit().putBoolean("camera_concurrency_enable", (Boolean) newValue).apply();
+
+                updateCameraConcurrencyPreferences();
+
+                if ((Boolean) newValue) {
+                    CameraManager cameraManager =
+                            (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                    updateResolutionOptionsForSelectedCameras(cameraManager);
+                }
+
+                return true;
+            });
+        }
+
+        ListPreference ccMode = mPrefScreen.findPreference("camera_concurrency_mode");
+        if (ccMode != null) {
+            ccMode.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+                prefs.edit().putString("camera_concurrency_mode", (String) newValue).apply();
+
+                updateCameraConcurrencyPreferences();
+
+                CameraManager cameraManager =
+                        (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                updateResolutionOptionsForSelectedCameras(cameraManager);
+
+                return true;
+            });
+        }
+
+        ListPreference logicalCameraId = mPrefScreen.findPreference("cc_logical_camera_id");
+        if (logicalCameraId != null) {
+            logicalCameraId.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+                prefs.edit().putString("cc_logical_camera_id", (String) newValue).apply();
+
+                prefs.edit().putStringSet("cc_physical_camera_selection", new HashSet<>()).apply();
+
+                MultiSelectListPreference physicalCameraSelection =
+                        mPrefScreen.findPreference("cc_physical_camera_selection");
+                if (physicalCameraSelection != null) {
+                    physicalCameraSelection.setValues(new HashSet<>());
+                }
+
+                prefs.edit().remove("cc_camera1_resolution").apply();
+                prefs.edit().remove("cc_camera2_resolution").apply();
+                prefs.edit().remove("cc_camera3_resolution").apply();
+                prefs.edit().remove("cc_camera4_resolution").apply();
+
+                ListPreference cam1Res = mPrefScreen.findPreference("cc_camera1_resolution");
+                ListPreference cam2Res = mPrefScreen.findPreference("cc_camera2_resolution");
+                ListPreference cam3Res = mPrefScreen.findPreference("cc_camera3_resolution");
+                ListPreference cam4Res = mPrefScreen.findPreference("cc_camera4_resolution");
+                if (cam1Res != null) cam1Res.setTitle("Camera 1 Resolution");
+                if (cam2Res != null) cam2Res.setTitle("Camera 2 Resolution");
+                if (cam3Res != null) cam3Res.setTitle("Camera 3 Resolution");
+                if (cam4Res != null) cam4Res.setTitle("Camera 4 Resolution");
+
+                updateCameraConcurrencyPreferences();
+
+                CameraManager cameraManager =
+                        (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                updatePhysicalCameraListForLogicalCamera(cameraManager, (String) newValue);
+
+                Log.i(TAG, "Logical camera changed to: " + newValue +
+                        ", cleared selections and updated UI");
+                return true;
+            });
+        }
+
+        MultiSelectListPreference physicalCameraSelection =
+                mPrefScreen.findPreference("cc_physical_camera_selection");
+        if (physicalCameraSelection != null) {
+            physicalCameraSelection.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+                prefs.edit().putStringSet("cc_physical_camera_selection",
+                        (Set<String>) newValue).apply();
+
+                CameraManager cameraManager =
+                        (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                updateResolutionOptionsForSelectedCameras(cameraManager);
+
+                updateCameraConcurrencyPreferences();
+                return true;
+            });
+        }
+
+        MultiSelectListPreference independentCameraSelection =
+                mPrefScreen.findPreference("cc_independent_camera_selection");
+        if (independentCameraSelection != null) {
+            independentCameraSelection.setOnPreferenceChangeListener((preference, newValue) -> {
+                SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+                prefs.edit().putStringSet("cc_independent_camera_selection",
+                        (Set<String>) newValue).apply();
+
+                CameraManager cameraManager =
+                        (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
+                updateResolutionOptionsForSelectedCameras(cameraManager);
+
+                updateCameraConcurrencyPreferences();
+                return true;
+            });
+        }
     }
 
 
@@ -625,6 +731,312 @@ public class SettingsFragment extends PreferenceFragmentCompat
         camera_id = mPrefScreen.findPreference("hdmi_3_camera_id");
         camera_id.setEntries(cameras);
         camera_id.setEntryValues(cameraIds);
+
+        populateCameraConcurrencySettings(cameraManager, detectedCameras, cameraIDs);
+    }
+
+    private void populateCameraConcurrencySettings(CameraManager cameraManager,
+                                                   ArrayList<String> detectedCameras,
+                                                   ArrayList<String> cameraIDs) {
+        try {
+            ListPreference logicalCameraId = mPrefScreen.findPreference("cc_logical_camera_id");
+            if (logicalCameraId != null) {
+                ArrayList<String> logicalCameras = new ArrayList<>();
+                ArrayList<String> logicalCameraIds = new ArrayList<>();
+
+                for (String camID : cameraIDs) {
+                    CameraCharacteristics characteristics =
+                            cameraManager.getCameraCharacteristics(camID);
+                    Set<String> physicalIds = characteristics.getPhysicalCameraIds();
+                    int physicalCount = physicalIds.isEmpty() ? 1 : physicalIds.size();
+                    logicalCameras.add("Logical Camera " + camID +
+                            " (" + physicalCount + " physical)");
+                    logicalCameraIds.add(camID);
+                }
+
+                if (!logicalCameras.isEmpty()) {
+                    logicalCameraId.setEntries(logicalCameras.toArray(new CharSequence[0]));
+                    logicalCameraId.setEntryValues(logicalCameraIds.toArray(new CharSequence[0]));
+                }
+            }
+
+            MultiSelectListPreference physicalCameraSelection =
+                    mPrefScreen.findPreference("cc_physical_camera_selection");
+            if (physicalCameraSelection != null) {
+                updatePhysicalCameraList(cameraManager);
+            }
+
+            MultiSelectListPreference independentCameraSelection =
+                    mPrefScreen.findPreference("cc_independent_camera_selection");
+            if (independentCameraSelection != null) {
+                independentCameraSelection.setEntries(detectedCameras.toArray(new CharSequence[0]));
+                independentCameraSelection.setEntryValues(cameraIDs.toArray(new CharSequence[0]));
+            }
+
+            updateCameraConcurrencyPreferences();
+
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error populating camera concurrency settings", e);
+        }
+    }
+
+    private void updatePhysicalCameraList(CameraManager cameraManager) {
+        try {
+            SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+            String logicalCameraId = prefs.getString("cc_logical_camera_id", "0");
+            updatePhysicalCameraListForLogicalCamera(cameraManager, logicalCameraId);
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating physical camera list", e);
+        }
+    }
+
+    private void updatePhysicalCameraListForLogicalCamera(
+            CameraManager cameraManager, String logicalCameraId) {
+        try {
+            CameraCharacteristics characteristics =
+                    cameraManager.getCameraCharacteristics(logicalCameraId);
+            Set<String> physicalIds = characteristics.getPhysicalCameraIds();
+
+            MultiSelectListPreference physicalCameraSelection =
+                    mPrefScreen.findPreference("cc_physical_camera_selection");
+
+            if (physicalCameraSelection != null) {
+                if (!physicalIds.isEmpty()) {
+                    ArrayList<String> physicalCameraLabels = new ArrayList<>();
+                    ArrayList<String> physicalCameraValues = new ArrayList<>();
+
+                    for (String physId : physicalIds) {
+                        physicalCameraLabels.add("Physical Camera " + physId);
+                        physicalCameraValues.add(physId);
+                    }
+
+                    physicalCameraSelection.setEntries(
+                            physicalCameraLabels.toArray(new CharSequence[0]));
+                    physicalCameraSelection.setEntryValues(
+                            physicalCameraValues.toArray(new CharSequence[0]));
+
+                    Log.i(TAG, "Updated physical camera list for logical camera " +
+                            logicalCameraId + ": " + physicalIds.size() + " physical cameras");
+                } else {
+                    ArrayList<String> physicalCameraLabels = new ArrayList<>();
+                    ArrayList<String> physicalCameraValues = new ArrayList<>();
+
+                    physicalCameraLabels.add("Physical Camera " + logicalCameraId);
+                    physicalCameraValues.add(logicalCameraId);
+
+                    physicalCameraSelection.setEntries(
+                            physicalCameraLabels.toArray(new CharSequence[0]));
+                    physicalCameraSelection.setEntryValues(
+                            physicalCameraValues.toArray(new CharSequence[0]));
+
+                    Log.i(TAG, "Updated physical camera list for logical camera " +
+                            logicalCameraId + ": 1 physical camera (same as logical)");
+                }
+            }
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error updating physical camera list for logical camera " +
+                    logicalCameraId, e);
+        }
+    }
+
+    private void updateResolutionOptionsForSelectedCameras(CameraManager cameraManager) {
+        try {
+            SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+            String ccMode = prefs.getString("camera_concurrency_mode", "logical");
+
+            ArrayList<String> selectedCameraIds = new ArrayList<>();
+
+            if ("logical".equals(ccMode)) {
+                Set<String> physicalIds = prefs.getStringSet("cc_physical_camera_selection",
+                        new HashSet<>());
+                selectedCameraIds.addAll(physicalIds);
+
+                java.util.Collections.sort(selectedCameraIds);
+
+                for (int i = 0; i < Math.min(selectedCameraIds.size(), 4); i++) {
+                    String physicalCameraId = selectedCameraIds.get(i);
+                    String resKey = "cc_camera" + (i + 1) + "_resolution";
+                    updateResolutionPreferenceForPhysicalCamera(cameraManager,
+                            physicalCameraId, resKey, physicalCameraId);
+                }
+            } else {
+                Set<String> cameraIds = prefs.getStringSet("cc_independent_camera_selection",
+                        new HashSet<>());
+                selectedCameraIds.addAll(cameraIds);
+
+                java.util.Collections.sort(selectedCameraIds);
+
+                for (int i = 0; i < Math.min(selectedCameraIds.size(), 4); i++) {
+                    String cameraId = selectedCameraIds.get(i);
+                    String resKey = "cc_camera" + (i + 1) + "_resolution";
+                    updateResolutionPreference(cameraManager, cameraId, resKey, i);
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error updating resolution options", e);
+        }
+    }
+
+    private void updateResolutionPreferenceForPhysicalCamera(CameraManager cameraManager,
+                                                             String physicalCameraId, String prefKey,
+                                                             String actualPhysicalCameraId) {
+        try {
+            ListPreference resPref = mPrefScreen.findPreference(prefKey);
+            if (resPref == null) return;
+
+            resPref.setTitle("Physical Camera " + physicalCameraId + " Resolution");
+
+            SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+            String logicalCameraId = prefs.getString("cc_logical_camera_id", "0");
+
+            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(
+                    logicalCameraId);
+            android.hardware.camera2.params.StreamConfigurationMap map =
+                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (map != null) {
+                android.util.Size[] sizes = map.getOutputSizes(android.view.SurfaceHolder.class);
+                if (sizes != null && sizes.length > 0) {
+                    java.util.Arrays.sort(sizes, (s1, s2) -> {
+                        long area1 = (long) s1.getWidth() * s1.getHeight();
+                        long area2 = (long) s2.getWidth() * s2.getHeight();
+                        return Long.compare(area2, area1);
+                    });
+
+                    java.util.LinkedHashSet<String> resolutionSet = new java.util.LinkedHashSet<>();
+                    for (android.util.Size size : sizes) {
+                        String resolution = size.getWidth() + "x" + size.getHeight();
+                        resolutionSet.add(resolution);
+                    }
+
+                    String[] resolutions = resolutionSet.toArray(new String[0]);
+                    resPref.setEntries(resolutions);
+                    resPref.setEntryValues(resolutions);
+
+                    String currentValue = resPref.getValue();
+                    if (currentValue == null || !resolutionSet.contains(currentValue)) {
+                        if (resolutions.length > 0) {
+                            resPref.setValue(resolutions[0]);
+                            Log.i(TAG, "Set default resolution to sensor max: " + resolutions[0] +
+                                    " for " + prefKey);
+                        }
+                    } else {
+                        Log.i(TAG, "Preserving existing resolution: " + currentValue + " for "
+                                + prefKey);
+                    }
+
+                    Log.i(TAG, "Updated resolution options for " + prefKey + " (physical camera " +
+                            physicalCameraId + "): " + resolutions.length + " resolutions available");
+                }
+            }
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error updating resolution preference for physical camera " +
+                    physicalCameraId, e);
+        }
+    }
+
+    private void updateResolutionPreference(CameraManager cameraManager,
+                                            String cameraId, String prefKey, int cameraIndex) {
+        try {
+            ListPreference resPref = mPrefScreen.findPreference(prefKey);
+            if (resPref == null) return;
+
+            resPref.setTitle("Camera " + cameraId + " Resolution");
+
+            CameraCharacteristics characteristics = cameraManager.getCameraCharacteristics(cameraId);
+            android.hardware.camera2.params.StreamConfigurationMap map =
+                    characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+            if (map != null) {
+                android.util.Size[] sizes = map.getOutputSizes(android.view.SurfaceHolder.class);
+                if (sizes != null && sizes.length > 0) {
+                    java.util.Arrays.sort(sizes, (s1, s2) -> {
+                        long area1 = (long) s1.getWidth() * s1.getHeight();
+                        long area2 = (long) s2.getWidth() * s2.getHeight();
+                        return Long.compare(area2, area1);
+                    });
+
+                    java.util.LinkedHashSet<String> resolutionSet = new java.util.LinkedHashSet<>();
+                    for (android.util.Size size : sizes) {
+                        String resolution = size.getWidth() + "x" + size.getHeight();
+                        resolutionSet.add(resolution);
+                    }
+
+                    String[] resolutions = resolutionSet.toArray(new String[0]);
+                    resPref.setEntries(resolutions);
+                    resPref.setEntryValues(resolutions);
+
+                    String currentValue = resPref.getValue();
+                    if (currentValue == null || !resolutionSet.contains(currentValue)) {
+                        if (resolutions.length > 0) {
+                            resPref.setValue(resolutions[0]);
+                        }
+                    }
+
+                    Log.i(TAG, "Updated resolution options for " + prefKey + " (camera " +
+                            cameraId + "): " + resolutions.length + " resolutions available");
+                }
+            }
+        } catch (CameraAccessException e) {
+            Log.e(TAG, "Error updating resolution preference for camera " + cameraId, e);
+        }
+    }
+
+    private void updateCameraConcurrencyPreferences() {
+        SharedPreferences prefs = mPrefScreen.getSharedPreferences();
+        boolean ccEnabled = prefs.getBoolean("camera_concurrency_enable", false);
+        String ccMode = prefs.getString("camera_concurrency_mode", "logical");
+
+        ListPreference logicalCameraId = mPrefScreen.findPreference("cc_logical_camera_id");
+        MultiSelectListPreference physicalCameraSelection =
+                mPrefScreen.findPreference("cc_physical_camera_selection");
+        MultiSelectListPreference independentCameraSelection =
+                mPrefScreen.findPreference("cc_independent_camera_selection");
+
+        ListPreference cam1Res = mPrefScreen.findPreference("cc_camera1_resolution");
+        ListPreference cam2Res = mPrefScreen.findPreference("cc_camera2_resolution");
+        ListPreference cam3Res = mPrefScreen.findPreference("cc_camera3_resolution");
+        ListPreference cam4Res = mPrefScreen.findPreference("cc_camera4_resolution");
+
+        if (!ccEnabled) {
+            if (logicalCameraId != null) logicalCameraId.setVisible(false);
+            if (physicalCameraSelection != null) physicalCameraSelection.setVisible(false);
+            if (independentCameraSelection != null) independentCameraSelection.setVisible(false);
+            if (cam1Res != null) cam1Res.setVisible(false);
+            if (cam2Res != null) cam2Res.setVisible(false);
+            if (cam3Res != null) cam3Res.setVisible(false);
+            if (cam4Res != null) cam4Res.setVisible(false);
+            return;
+        }
+
+        if ("logical".equals(ccMode)) {
+            if (logicalCameraId != null) logicalCameraId.setVisible(true);
+            if (physicalCameraSelection != null) physicalCameraSelection.setVisible(true);
+            if (independentCameraSelection != null) independentCameraSelection.setVisible(false);
+
+            Set<String> selectedPhysicalCameras =
+                    prefs.getStringSet("cc_physical_camera_selection", new HashSet<>());
+            int selectedCount = selectedPhysicalCameras.size();
+
+            if (cam1Res != null) cam1Res.setVisible(selectedCount >= 1);
+            if (cam2Res != null) cam2Res.setVisible(selectedCount >= 2);
+            if (cam3Res != null) cam3Res.setVisible(selectedCount >= 3);
+            if (cam4Res != null) cam4Res.setVisible(selectedCount >= 4);
+
+        } else {
+            if (logicalCameraId != null) logicalCameraId.setVisible(false);
+            if (physicalCameraSelection != null) physicalCameraSelection.setVisible(false);
+            if (independentCameraSelection != null) independentCameraSelection.setVisible(true);
+
+            Set<String> selectedIndependentCameras =
+                    prefs.getStringSet("cc_independent_camera_selection", new HashSet<>());
+            int selectedCount = selectedIndependentCameras.size();
+
+            if (cam1Res != null) cam1Res.setVisible(selectedCount >= 1);
+            if (cam2Res != null) cam2Res.setVisible(selectedCount >= 2);
+            if (cam3Res != null) cam3Res.setVisible(selectedCount >= 3);
+            if (cam4Res != null) cam4Res.setVisible(selectedCount >= 4);
+        }
     }
 
     private void restoreAppPreference() {
