@@ -10,7 +10,10 @@ LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/MainActivity.java
 LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/AudioCapture.java
 LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/AudioPlayback.java
 LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/UMDService.java
-
+LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/UMDAIDLImpl.java
+LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/UMDHIDLImpl.java
+LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/UMDProvider.java
+LOCAL_SRC_FILES += java/org/codeaurora/umdadaptor/UMDInterface.java
 
 LOCAL_RESOURCE_DIR := $(addprefix $(LOCAL_PATH)/, $(res_dir))
 LOCAL_USE_AAPT2 := true
@@ -21,8 +24,8 @@ LOCAL_CERTIFICATE := platform
 LOCAL_PRIVILEGED_MODULE := true
 LOCAL_PACKAGE_NAME := UMDAdaptor
 LOCAL_PRIVATE_PLATFORM_APIS := true
-LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umd-V1.0-java
-LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umdservice-V1-java
+LOCAL_STATIC_JAVA_LIBRARIES += vendor.qti.hardware.umd-V1.0-java \
+                               vendor.qti.hardware.umd_aidl-V1-java
 LOCAL_SYSTEM_EXT_MODULE:= true
 
-#include $(BUILD_PACKAGE)
+include $(BUILD_PACKAGE)
