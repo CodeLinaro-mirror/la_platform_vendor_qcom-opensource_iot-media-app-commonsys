@@ -1,3 +1,4 @@
+ifneq ($(TARGET_QCOM_IOT_LOW_RAM),true)
 # QMedia Android Application Package
 PRODUCT_PACKAGES += QMedia
 
@@ -11,4 +12,5 @@ PRODUCT_PACKAGES += Camera2Video
 PRODUCT_PACKAGES += UMDAdaptor
 
 PRODUCT_COPY_FILES += \
-    vendor/qcom/opensource/commonsys/iot-media-app-commonsys/APPS/umdadaptor/privapp-permissions-org.umdadaptor.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-org.umdadaptor.xml \
+    vendor/qcom/opensource/commonsys/iot-media-app-commonsys/APPS/umdadaptor/privapp-permissions-org.umdadaptor.xml:$(TARGET_COPY_OUT_SYSTEM_EXT)/etc/permissions/privapp-permissions-org.umdadaptor.xml
+endif
